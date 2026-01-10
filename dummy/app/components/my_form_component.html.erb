@@ -1,0 +1,9 @@
+<section>
+  <h1>VCR Dummy</h1>
+  <p>Name: <%= vcr_state["data"]["name"] %></p>
+  <p>Loading: <%= vcr_state["meta"]["loading"] %></p>
+
+  <%= vcr_dispatch_form(state: vcr_state_token, msg_type: "ClickedSave") do %>
+    <button type="submit">Save</button>
+  <% end %>
+</section>

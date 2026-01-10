@@ -80,3 +80,4 @@ Option B: write the hidden fields directly.
 - `Runtime#call` routes to the target component by `vcr_target_path`.
 - The component `reduce` runs and updates state.
 - The component is re-rendered and the new signed state is injected into the response.
+- The injected meta tag + inline script refreshes `input[name="vcr_state"]`.

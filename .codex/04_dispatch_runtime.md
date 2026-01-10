@@ -45,6 +45,9 @@ module ViewComponentReducible
 end
 ```
 
+Notes:
+- `Dispatch.inject_state` inserts a `<meta name="vcr-state">` tag and a small inline script to copy it into `input[name="vcr_state"]`.
+
 ## Component registry
 ```rb
 # lib/view_component_reducible.rb

@@ -4,8 +4,8 @@
 /coverage/
 /pkg/
 /spec/reports/
-/tmp/
-error.log
+tmp/
+*.log
 
 # rspec failure tracking
 .rspec_status
