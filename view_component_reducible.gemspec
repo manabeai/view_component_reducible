@@ -10,6 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Reducer-based state transitions for Rails ViewComponent"
   spec.description   = <<~DESC
+    This gem is intentionally published early. The API is unstable, but the idea is stable.
     view_component_reducible brings reducer-style (TEA-inspired) state transitions
     to Rails ViewComponent. Server-driven, HTTP-based, no WebSocket required.
   DESC
