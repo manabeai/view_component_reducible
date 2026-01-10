@@ -184,3 +184,15 @@ module ViewComponentReducible
   end
 end
 ```
+
+## Minimal partial updates
+Boundary markup should include a path marker:
+
+```erb
+<%= helpers.vcr_boundary(path: vcr_envelope["path"]) do %>
+  ...
+<% end %>
+```
+
+The client sends `vcr_partial=1` and the server responds with HTML for the target path.
+The response includes `X-VCR-State` to refresh hidden inputs.

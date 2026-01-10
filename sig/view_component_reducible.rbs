@@ -68,6 +68,7 @@ module ViewComponentReducible
   class Runtime
     MAX_EFFECT_STEPS: Integer
     def call: (envelope: Hash[untyped, untyped], msg: Msg, target_path: String, controller: ActionController::Base) -> [Hash[untyped, untyped], String]
+    def render_target: (envelope: Hash[untyped, untyped], target_path: String, controller: ActionController::Base) -> String
   end
 
   module Dispatch
@@ -86,7 +87,9 @@ module ViewComponentReducible
   end
 
   module Helpers
+    def vcr_boundary: (path: String) { () -> untyped } -> String
     def vcr_dispatch_form: (state: String, msg_type: String, ?msg_payload: Hash[untyped, untyped] | String, ?target_path: String, ?url: String) { () -> untyped } -> String
+    def vcr_dispatch_script_tag: () -> String
   end
   # See the writing guide of rbs: https://github.com/ruby/rbs#guides
 end

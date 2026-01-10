@@ -23,7 +23,8 @@ module ViewComponentReducible
       msg = ViewComponentReducible::Msg.from_params(params)
       target_path = params.fetch("vcr_target_path", envelope["path"])
 
-      new_envelope, html = ViewComponentReducible::Runtime.new.call(
+      runtime = ViewComponentReducible::Runtime.new
+      new_envelope, html = runtime.call(
         envelope:,
         msg:,
         target_path:,
@@ -31,7 +32,13 @@ module ViewComponentReducible
       )
 
       signed = adapter.dump(new_envelope, request:)
-      render html: ViewComponentReducible::Dispatch.inject_state(html, signed), content_type: "text/html"
+      if params["vcr_partial"] == "1"
+        partial_html = runtime.render_target(envelope: new_envelope, target_path:, controller: self)
+        response.set_header("X-VCR-State", signed)
+        render html: partial_html, content_type: "text/html"
+      else
+        render html: ViewComponentReducible::Dispatch.inject_state(html, signed), content_type: "text/html"
+      end
     rescue ActiveSupport::MessageVerifier::InvalidSignature
       render status: 400, plain: "Invalid state signature"
     end

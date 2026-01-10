@@ -22,6 +22,17 @@ RSpec.describe ViewComponentReducible::Helpers do
     expect(html).to include("id")
     expect(html).to include('name="vcr_target_path"')
     expect(html).to include('value="root/1"')
+    expect(html).to include('data-vcr-form="true"')
     expect(html).to include(">Go<")
+  end
+
+  it "wraps content with a boundary" do
+    view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
+    view.extend(described_class)
+
+    html = view.vcr_boundary(path: "root/1") { "Inside" }
+
+    expect(html).to include('data-vcr-path="root/1"')
+    expect(html).to include("Inside")
   end
 end

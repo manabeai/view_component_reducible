@@ -42,10 +42,12 @@ end
 Use the values defined in the state DSL.
 
 ```erb
-<div>
-  <p>Name: <%= vcr_state["data"]["name"] %></p>
-  <p>Loading: <%= vcr_state["meta"]["loading"] %></p>
-</div>
+<%= helpers.vcr_boundary(path: vcr_envelope["path"]) do %>
+  <div>
+    <p>Name: <%= vcr_state["data"]["name"] %></p>
+    <p>Loading: <%= vcr_state["meta"]["loading"] %></p>
+  </div>
+<% end %>
 ```
 
 ## 4. Trigger dispatch to the VCR endpoint
@@ -81,3 +83,11 @@ Option B: write the hidden fields directly.
 - The component `reduce` runs and updates state.
 - The component is re-rendered and the new signed state is injected into the response.
 - The injected meta tag + inline script refreshes `input[name="vcr_state"]`.
+
+## 6. Enable partial updates (minimal JS)
+
+Add the dispatcher script in your layout to use the partial update flow.
+
+```erb
+<%= vcr_dispatch_script_tag %>
+```

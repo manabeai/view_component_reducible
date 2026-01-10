@@ -19,6 +19,17 @@ module ViewComponentReducible
       [new_env, html]
     end
 
+    # Render HTML for a specific path after state updates.
+    # @param envelope [Hash]
+    # @param target_path [String]
+    # @param controller [ActionController::Base]
+    # @return [String]
+    def render_target(envelope:, target_path:, controller:)
+      root_klass = ViewComponentReducible.registry.fetch(envelope["root"])
+      component_klass, env = find_env_and_class(root_klass, envelope, target_path)
+      controller.view_context.render(component_klass.new(vcr_envelope: env))
+    end
+
     private
 
     def dispatch_to_path(root_klass, env, msg, target_path, controller)
@@ -74,6 +85,14 @@ module ViewComponentReducible
 
     def render_root(root_klass, env, controller)
       controller.view_context.render(root_klass.new(vcr_envelope: env))
+    end
+
+    def find_env_and_class(component_klass, env, target_path)
+      return [component_klass, env] if target_path == env["path"]
+
+      child = env["children"].fetch(target_path) { raise KeyError, "Unknown path: #{target_path}" }
+      child_klass = ViewComponentReducible.registry.fetch(child["root"])
+      find_env_and_class(child_klass, child, target_path)
     end
 
     def deep_dup(obj)
