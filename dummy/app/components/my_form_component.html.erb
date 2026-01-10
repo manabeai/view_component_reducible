@@ -1,9 +1,16 @@
 <section>
   <h1>VCR Dummy</h1>
-  <p>Name: <%= vcr_state["data"]["name"] %></p>
+  <% if vcr_state["data"]["page"] == "page1" %>
+    <p>Page1</p>
+    <%= helpers.vcr_dispatch_form(state: vcr_state_token, msg_type: "NextPage") do %>
+      <button type="submit">Next</button>
+    <% end %>
+  <% else %>
+    <p>Page2</p>
+  <% end %>
   <p>Loading: <%= vcr_state["meta"]["loading"] %></p>
 
-  <%= vcr_dispatch_form(state: vcr_state_token, msg_type: "ClickedSave") do %>
+  <%= helpers.vcr_dispatch_form(state: vcr_state_token, msg_type: "ClickedSave") do %>
     <button type="submit">Save</button>
   <% end %>
 </section>

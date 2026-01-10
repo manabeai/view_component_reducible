@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
-  mount ViewComponentReducible::Engine => "/vcr"
+  mount ViewComponentReducible::Engine, at: "/vcr"
+  post "/vcr/dispatch", to: "view_component_reducible/dispatch#call"
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

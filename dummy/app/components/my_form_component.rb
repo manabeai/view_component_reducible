@@ -6,11 +6,11 @@ class MyFormComponent < ViewComponent::Base
   attr_reader :vcr_state_token
 
   state do
-    field :name, default: ""
+    field :page, default: "page1"
     meta :loading, default: false
   end
 
-  def initialize(vcr_envelope:, vcr_state_token:)
+  def initialize(vcr_envelope:, vcr_state_token: nil)
     @vcr_envelope = vcr_envelope
     @vcr_state_token = vcr_state_token
     super()
@@ -18,8 +18,8 @@ class MyFormComponent < ViewComponent::Base
 
   def reduce(state, msg)
     case msg.type
-    when "ClickedSave"
-      new_state = state.merge("meta" => state["meta"].merge("loading" => true))
+    when "NextPage"
+      new_state = state.merge("data" => state["data"].merge("page" => "page2"))
       [new_state, []]
     else
       [state, []]

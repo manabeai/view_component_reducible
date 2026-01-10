@@ -9,6 +9,7 @@ tmp/
 
 # rspec failure tracking
 .rspec_status
+development.sqlite3
 
 /.vscode/
 view_component_reducible-*
