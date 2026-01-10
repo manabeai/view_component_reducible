@@ -3,10 +3,10 @@
 ## Routes
 ```rb
 # config/routes.rb (host app)
-post "/vcr/dispatch", to: "view_component_reducible/dispatch#call"
+mount ViewComponentReducible::Engine => "/vcr"
 ```
 
-Gem provides railtie to auto-append routes optionally (v0: keep manual).
+Engine provides `/dispatch` inside the mount point.
 
 ## Controller
 Responsibilities:
@@ -18,37 +18,28 @@ Responsibilities:
 - include updated signed state in response HTML
 
 ```rb
-# lib/view_component_reducible/dispatch/controller.rb
+# lib/view_component_reducible/dispatch_controller.rb
 module ViewComponentReducible
-  module Dispatch
-    class Controller < ActionController::Base
-      protect_from_forgery with: :exception
+  class DispatchController < ActionController::Base
+    protect_from_forgery with: :exception
 
-      def call
-        adapter = ViewComponentReducible.config.adapter_for(self)
-        envelope = adapter.load(request:)
-        msg = ViewComponentReducible::Msg.from_params(params)
-        target_path = params.fetch("vcr_target_path", envelope["path"])
+    def call
+      adapter = ViewComponentReducible.config.adapter_for(self)
+      envelope = adapter.load(request:)
+      msg = ViewComponentReducible::Msg.from_params(params)
+      target_path = params.fetch("vcr_target_path", envelope["path"])
 
-        new_envelope, html = ViewComponentReducible::Runtime.new.call(
-          envelope:,
-          msg:,
-          target_path:,
-          controller: self
-        )
+      new_envelope, html = ViewComponentReducible::Runtime.new.call(
+        envelope:,
+        msg:,
+        target_path:,
+        controller: self
+      )
 
-        signed = adapter.dump(new_envelope, request:)
-        render html: ViewComponentReducible::Dispatch.inject_state(html, signed), content_type: "text/html"
-      rescue ActiveSupport::MessageVerifier::InvalidSignature
-        render status: 400, plain: "Invalid state signature"
-      end
-    end
-
-    # inject updated hidden field(s) into response
-    # v0.1: simplest: embed as <meta> and JS updates hidden input
-    def self.inject_state(html, signed_state)
-      meta = %(<meta name="vcr-state" content="#{ERB::Util.html_escape(signed_state)}">)
-      html.include?("</head>") ? html.sub("</head>", "#{meta}</head>") : (meta + html)
+      signed = adapter.dump(new_envelope, request:)
+      render html: ViewComponentReducible::Dispatch.inject_state(html, signed), content_type: "text/html"
+    rescue ActiveSupport::MessageVerifier::InvalidSignature
+      render status: 400, plain: "Invalid state signature"
     end
   end
 end
@@ -123,7 +114,7 @@ module ViewComponentReducible
     end
 
     def apply_reducer(component_klass, env, msg, controller)
-      component = component_klass.new
+      component = component_klass.new(vcr_envelope: env)
       schema = component_klass.vcr_state_schema
       data, meta = schema.build(env["data"], env["meta"])
       state = { "data" => data, "meta" => meta } # v0: keep plain hash
@@ -176,4 +167,3 @@ end
 ```
 
 v0.1 simplification: render the whole root HTML. Partial update can be added later (Turbo Frame / data-target replacement).
-

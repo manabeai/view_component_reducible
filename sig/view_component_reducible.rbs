@@ -1,12 +1,44 @@
 module ViewComponentReducible
   VERSION: String
+  def self.registry: () -> Hash[String, Class]
+  def self.register: (Class component_klass) -> void
+  def self.config: () -> Configuration
+  def self.configure: () { (Configuration) -> void } -> void
+
+  class Configuration
+    attr_accessor adapter: Class
+    attr_accessor secret: String?
+    def initialize: () -> void
+    def adapter_for: (ActionController::Base controller, ?adapter_class: Class) -> Adapter::Base
+  end
+
+  Msg: Struct
   module Component
     def self.included: (untyped base) -> void
+    def vcr_envelope: () -> Hash[untyped, untyped]?
+    def vcr_state: () -> Hash[String, Hash[String, untyped]]
+    def vcr_dom_id: (path: String) -> String
 
     module ClassMethods
       def vcr_id: () -> String
       def state: () { () -> void } -> void
       def vcr_state_schema: () -> State::Schema
+    end
+  end
+
+  module Adapter
+    class Base
+      def initialize: (secret: String) -> void
+      def dump: (Hash[untyped, untyped] envelope, request: ActionDispatch::Request) -> String
+      def load: (request: ActionDispatch::Request) -> Hash[untyped, untyped]
+    end
+
+    class HiddenField < Base
+      def verifier: () -> ActiveSupport::MessageVerifier
+    end
+
+    class Session < Base
+      def verifier: () -> ActiveSupport::MessageVerifier
     end
   end
 
@@ -32,6 +64,22 @@ module ViewComponentReducible
     class Envelope
       def self.initial: (untyped root_component_klass, ?path: String) -> Hash[String, untyped]
     end
+  end
+  class Runtime
+    MAX_EFFECT_STEPS: Integer
+    def call: (envelope: Hash[untyped, untyped], msg: Msg, target_path: String, controller: ActionController::Base) -> [Hash[untyped, untyped], String]
+  end
+
+  module Dispatch
+    def self.inject_state: (String html, String signed_state) -> String
+  end
+
+  class DispatchController < ActionController::Base
+    def self.vcr_adapter: (?Class adapter_class) -> Class?
+    def call: () -> void
+  end
+
+  class Engine < ::Rails::Engine
   end
   # See the writing guide of rbs: https://github.com/ruby/rbs#guides
 end

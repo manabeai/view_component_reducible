@@ -40,6 +40,25 @@ module ViewComponentReducible
 end
 ```
 
+## Configuration
+Default adapter is `Session`. Set a different adapter or secret via configuration.
+
+```rb
+# config/initializers/view_component_reducible.rb (host app)
+ViewComponentReducible.configure do |config|
+  config.adapter = ViewComponentReducible::Adapter::Session
+  config.secret = Rails.application.secret_key_base
+end
+```
+
+You can override the adapter per controller:
+
+```rb
+class ViewComponentReducible::DispatchController
+  vcr_adapter ViewComponentReducible::Adapter::HiddenField
+end
+```
+
 ## HiddenField adapter
 Use ActiveSupport::MessageVerifier (signing). No encryption in v0.1.
 
@@ -96,4 +115,3 @@ module ViewComponentReducible
   end
 end
 ```
-

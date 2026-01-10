@@ -3,32 +3,37 @@
 ```rb
 # lib/view_component_reducible/component.rb
 module ViewComponentReducible
-  class Component < ViewComponent::Base
-    # required: unique component id for dispatching
-    def self.vcr_id = name
-
-    # state schema DSL
-    def self.state(&block) = ViewComponentReducible::State::DSL.define(self, &block)
-
-    # required: reducer
-    # @return [Array(new_state, effects)]
-    def reduce(state, msg)
-      raise NotImplementedError
+  module Component
+    def self.included(base)
+      base.include(State::DSL)
+      base.extend(ClassMethods)
     end
 
-    # required: render entry
-    # render should read values from state only
-    def call
-      raise NotImplementedError
+    attr_reader :vcr_envelope
+
+    def initialize(vcr_envelope: nil, **kwargs)
+      @vcr_envelope = vcr_envelope
+      return unless defined?(super)
+      kwargs.empty? ? super() : super(**kwargs)
     end
 
-    # optional: choose which DOM node is the replace target
+    def vcr_state
+      return { "data" => {}, "meta" => {} } if vcr_envelope.nil?
+      schema = self.class.vcr_state_schema
+      data, meta = schema.build(vcr_envelope["data"], vcr_envelope["meta"])
+      { "data" => data, "meta" => meta }
+    end
+
     def vcr_dom_id(path:) = "vcr:#{self.class.vcr_id}:#{path}"
+
+    module ClassMethods
+      def vcr_id = name.to_s
+    end
   end
 end
 ```
 
 Notes:
 - Reducer must not directly perform IO. Use effects.
-- `call` uses `@state` (set by runtime) and renders HTML.
-
+- `call` reads from `vcr_state` or `vcr_envelope` and renders HTML.
+- Components include the mixin: `include ViewComponentReducible::Component`.

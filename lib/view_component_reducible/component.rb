@@ -11,6 +11,34 @@ module ViewComponentReducible
       base.extend(ClassMethods)
     end
 
+    # @return [Hash, nil]
+    attr_reader :vcr_envelope
+
+    # @param vcr_envelope [Hash, nil]
+    def initialize(vcr_envelope: nil, **kwargs)
+      @vcr_envelope = vcr_envelope
+      return unless defined?(super)
+
+      kwargs.empty? ? super() : super(**kwargs)
+    end
+
+    # Build state hash for rendering from the envelope.
+    # @return [Hash{String=>Hash}]
+    def vcr_state
+      return { "data" => {}, "meta" => {} } if vcr_envelope.nil?
+
+      schema = self.class.vcr_state_schema
+      data, meta = schema.build(vcr_envelope["data"], vcr_envelope["meta"])
+      { "data" => data, "meta" => meta }
+    end
+
+    # Optional DOM target id for updates.
+    # @param path [String]
+    # @return [String]
+    def vcr_dom_id(path:)
+      "vcr:#{self.class.vcr_id}:#{path}"
+    end
+
     module ClassMethods
       # Stable component identifier for envelopes.
       # @return [String]
