@@ -167,3 +167,17 @@ end
 ```
 
 v0.1 simplification: render the whole root HTML. Partial update can be added later (Turbo Frame / data-target replacement).
+
+## View helper (optional)
+Provide a helper to hide the dispatch wiring.
+
+```rb
+# lib/view_component_reducible/helpers.rb
+module ViewComponentReducible
+  module Helpers
+    def vcr_dispatch_form(state:, msg_type:, msg_payload: {}, target_path: "root", url: "/vcr/dispatch", &block)
+      # builds a form with hidden fields
+    end
+  end
+end
+```

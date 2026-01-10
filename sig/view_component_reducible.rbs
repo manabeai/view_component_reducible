@@ -81,5 +81,12 @@ module ViewComponentReducible
 
   class Engine < ::Rails::Engine
   end
+
+  class Railtie < ::Rails::Railtie
+  end
+
+  module Helpers
+    def vcr_dispatch_form: (state: String, msg_type: String, ?msg_payload: Hash[untyped, untyped] | String, ?target_path: String, ?url: String) { () -> untyped } -> String
+  end
   # See the writing guide of rbs: https://github.com/ruby/rbs#guides
 end

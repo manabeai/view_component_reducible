@@ -1,0 +1,82 @@
+# Usage Flow (Web App)
+
+This document describes the minimal end-to-end flow for using ViewComponentReducible in a web app.
+
+## 1. Mount the engine route
+
+Add the engine to your routes.
+
+```ruby
+# config/routes.rb
+mount ViewComponentReducible::Engine => "/vcr"
+```
+
+## 2. Define state in the component
+
+Include the mixin and declare state with the DSL.
+
+```ruby
+class MyFormComponent < ViewComponent::Base
+  include ViewComponentReducible::Component
+
+  state do
+    field :name, default: ""
+    meta :loading, default: false
+  end
+
+  # reduce is equivalent to Elm's update.
+  def reduce(state, msg)
+    case msg.type
+    when "ClickedSave"
+      new_state = state.merge("meta" => state["meta"].merge("loading" => true))
+      [new_state, []]
+    else
+      [state, []]
+    end
+  end
+end
+```
+
+## 3. Render state in the template
+
+Use the values defined in the state DSL.
+
+```erb
+<div>
+  <p>Name: <%= vcr_state["data"]["name"] %></p>
+  <p>Loading: <%= vcr_state["meta"]["loading"] %></p>
+</div>
+```
+
+## 4. Trigger dispatch to the VCR endpoint
+
+Post a message to `/vcr/dispatch` so it reaches the component reducer.
+
+Option A: use the helper to hide the wiring.
+
+```erb
+<%= vcr_dispatch_form(state: @vcr_state_token, msg_type: "ClickedSave") do %>
+  <button type="submit">Save</button>
+<% end %>
+```
+
+Option B: write the hidden fields directly.
+
+```erb
+<form method="post" action="/vcr/dispatch">
+  <input type="hidden" name="vcr_state" value="<%= @vcr_state_token %>">
+  <input type="hidden" name="vcr_msg_type" value="ClickedSave">
+  <input type="hidden" name="vcr_msg_payload" value="{}">
+  <input type="hidden" name="vcr_target_path" value="root">
+  <button type="submit">Save</button>
+</form>
+```
+
+## 5. Dispatch flow (summary)
+
+- The request hits `ViewComponentReducible::DispatchController#call`.
+- The adapter loads the envelope from `vcr_state`.
+- `Msg.from_params` builds the message.
+- `Runtime#call` routes to the target component by `vcr_target_path`.
+- The component `reduce` runs and updates state.
+- The component is re-rendered and the new signed state is injected into the response.

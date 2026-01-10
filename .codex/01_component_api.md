@@ -35,5 +35,6 @@ end
 
 Notes:
 - Reducer must not directly perform IO. Use effects.
+- `reduce` is equivalent to Elm's `update` (state + msg -> new_state + effects).
 - `call` reads from `vcr_state` or `vcr_envelope` and renders HTML.
 - Components include the mixin: `include ViewComponentReducible::Component`.
