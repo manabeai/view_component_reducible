@@ -1,3 +1,6 @@
+This gem is intentionally published early.
+The API is unstable, but the idea is stable.
+
 # view_component_reducible
 
 ![sample](doc/img/sample.png)
