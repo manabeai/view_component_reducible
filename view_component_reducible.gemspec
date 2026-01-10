@@ -8,9 +8,13 @@ Gem::Specification.new do |spec|
   spec.authors = ["manabeai"]
   spec.email = ["matsu.devtool@gmail.com"]
 
-  spec.summary = "TODO: Write a short summary, because RubyGems requires one."
-  spec.description = "TODO: Write a longer description or delete this line."
-  spec.homepage = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = "Reducer-based state transitions for Rails ViewComponent"
+  spec.description   = <<~DESC
+    view_component_reducible brings reducer-style (TEA-inspired) state transitions
+    to Rails ViewComponent. Server-driven, HTTP-based, no WebSocket required.
+  DESC
+  spec.homepage      = "https://github.com/manabeai/view_component_reducible"
+
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
 
@@ -23,12 +27,8 @@ Gem::Specification.new do |spec|
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   gemspec = File.basename(__FILE__)
-  spec.files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
-    ls.readlines("\x0", chomp: true).reject do |f|
-      (f == gemspec) ||
-        f.start_with?(*%w[bin/ test/ spec/ features/ .git appveyor Gemfile])
-    end
-  end
+  spec.files = Dir.glob("lib/**/*") + %w[README.md LICENSE]
+
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
