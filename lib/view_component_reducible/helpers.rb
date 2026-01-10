@@ -62,11 +62,6 @@ module ViewComponentReducible
                 });
               })
               .then(function(payload) {
-                if (payload.state) {
-                  document.querySelectorAll('input[name="vcr_state"]').forEach(function(input) {
-                    input.value = payload.state;
-                  });
-                }
                 var targetPath = formData.get("vcr_target_path");
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(payload.html, "text/html");
@@ -74,6 +69,11 @@ module ViewComponentReducible
                 var current = document.querySelector('[data-vcr-path="' + targetPath + '"]');
                 if (newNode && current) {
                   current.replaceWith(newNode);
+                }
+                if (payload.state) {
+                  document.querySelectorAll('input[name="vcr_state"]').forEach(function(input) {
+                    input.value = payload.state;
+                  });
                 }
               });
           });

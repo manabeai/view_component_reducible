@@ -13,10 +13,14 @@ module ViewComponentReducible
 
     # @return [Hash, nil]
     attr_reader :vcr_envelope
+    # @return [String, nil]
+    attr_reader :vcr_state_token
 
     # @param vcr_envelope [Hash, nil]
-    def initialize(vcr_envelope: nil, **kwargs)
+    # @param vcr_state_token [String, nil]
+    def initialize(vcr_envelope: nil, vcr_state_token: nil, **kwargs)
       @vcr_envelope = vcr_envelope
+      @vcr_state_token = vcr_state_token
       return unless defined?(super)
 
       kwargs.empty? ? super() : super(**kwargs)
