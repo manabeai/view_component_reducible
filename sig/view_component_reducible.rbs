@@ -1,4 +1,37 @@
 module ViewComponentReducible
   VERSION: String
+  module Component
+    def self.included: (untyped base) -> void
+
+    module ClassMethods
+      def vcr_id: () -> String
+      def state: () { () -> void } -> void
+      def vcr_state_schema: () -> State::Schema
+    end
+  end
+
+  module State
+    class Schema
+      Field: Struct
+
+      def initialize: () -> void
+      def add_field: (Symbol name, default: untyped, kind: Symbol) -> void
+      def build: (Hash[untyped, untyped] data_hash, Hash[untyped, untyped] meta_hash) -> [Hash[String, untyped], Hash[String, untyped]]
+      def defaults: () -> [Hash[String, untyped], Hash[String, untyped]]
+    end
+
+    module DSL
+      def self.included: (untyped base) -> void
+
+      module ClassMethods
+        def state: () { () -> void } -> void
+        def vcr_state_schema: () -> Schema
+      end
+    end
+
+    class Envelope
+      def self.initial: (untyped root_component_klass, ?path: String) -> Hash[String, untyped]
+    end
+  end
   # See the writing guide of rbs: https://github.com/ruby/rbs#guides
 end

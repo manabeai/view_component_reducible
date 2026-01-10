@@ -5,7 +5,7 @@ RSpec.describe ViewComponentReducible do
     expect(ViewComponentReducible::VERSION).not_to be nil
   end
 
-  it "does something useful" do
-    expect(false).to eq(true)
+  it "provides the component mixin" do
+    expect(ViewComponentReducible::Component).to be_a(Module)
   end
 end

@@ -18,6 +18,7 @@
 - Use two-space indentation, snake_case for methods/variables, and CamelCase for classes/modules under the `ViewComponentReducible` namespace.
 - Prefer double quotes for strings unless interpolation is unnecessary and consistency suggests otherwise.
 - No linter is configured; follow idiomatic Ruby and keep methods small and focused. Update `sig/` types when changing public interfaces.
+- Add YARD docstrings for public APIs.
 
 ## Testing Guidelines
 - Write specs with clear `describe`/`context` blocks and expectation messages; keep unit tests fast.
@@ -25,6 +26,6 @@
 - Ensure new behavior is covered; avoid leaving placeholder failing specs in the suite.
 
 ## Commit & Pull Request Guidelines
-- Use short, imperative commit messages (e.g., `Add reducer render helper`); group related changes per commit when possible.
+- Use short, imperative commit messages (e.g., `Update gemspec to include LICENSE.txt in gem files`); group related changes per commit when possible.
 - Pull requests should include: a summary of the change, rationale/motivation, testing notes (`bundle exec rspec` output), and linked issues when applicable.
 - Request reviews early for interface changes that affect `sig/` files or gem packaging. Add screenshots or examples if the change impacts developer ergonomics or documentation.
