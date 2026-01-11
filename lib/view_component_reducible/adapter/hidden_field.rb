@@ -15,7 +15,7 @@ module ViewComponentReducible
       # @param envelope [Hash]
       # @param request [ActionDispatch::Request]
       # @return [String]
-      def dump(envelope, request:)
+      def dump(envelope, request: _request)
         verifier.generate(envelope)
       end
 

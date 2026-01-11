@@ -27,10 +27,10 @@ module ViewComponentReducible
 
     def normalized_type
       type.to_s
-        .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-        .tr('-', '_')
-        .downcase
-        .to_sym
+          .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+          .tr('-', '_')
+          .downcase
+          .to_sym
     end
   end
 end
