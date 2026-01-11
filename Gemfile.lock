@@ -4,6 +4,7 @@ PATH
     view_component_reducible (0.1.1)
       actionpack (>= 6.1)
       activesupport (>= 6.1)
+      nokogiri (>= 1.14)
       railties (>= 6.1)
       view_component (>= 2.0)
 

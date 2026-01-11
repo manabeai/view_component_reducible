@@ -37,6 +37,7 @@ module ViewComponentReducible
 
     class HiddenField < Base
       def verifier: () -> ActiveSupport::MessageVerifier
+      def dump: (Hash[untyped, untyped] envelope, request: ActionDispatch::Request) -> String
     end
 
     class Session < Base

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'nokogiri'
+
 module ViewComponentReducible
   # Include to enable the component state DSL and helpers.
   module Component
@@ -51,7 +53,7 @@ module ViewComponentReducible
       path = vcr_envelope && vcr_envelope['path']
       return rendered if path.nil? || path.to_s.empty?
 
-      view_context.content_tag(:div, rendered, data: { vcr_path: path })
+      inject_vcr_path(rendered, path)
     end
 
     module ClassMethods
@@ -60,6 +62,18 @@ module ViewComponentReducible
       def vcr_id
         name.to_s
       end
+    end
+
+    private
+
+    def inject_vcr_path(rendered, path)
+      fragment = Nokogiri::HTML::DocumentFragment.parse(rendered.to_s)
+      root = fragment.children.find(&:element?)
+      return rendered if root.nil?
+
+      root['data-vcr-path'] = path
+      html = fragment.to_html
+      html.respond_to?(:html_safe) ? html.html_safe : html
     end
   end
 end
