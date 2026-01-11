@@ -6,7 +6,7 @@ RSpec.describe ViewComponentReducible::Adapter::HiddenField do
     envelope = { 'v' => 1, 'data' => { 'name' => 'A' } }
     request = Struct.new(:params).new({})
 
-    signed = adapter.dump(envelope, request: request)
+    signed = adapter.dump(envelope)
     request.params['vcr_state'] = signed
 
     expect(adapter.load(request: request)).to eq(envelope)

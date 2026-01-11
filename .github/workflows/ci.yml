@@ -26,6 +26,24 @@ jobs:
       - name: Run RSpec
         run: bundle exec rspec
 
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.1.4"
+          bundler: "2.6.9"
+
+      - name: Install gems
+        env:
+          BUNDLE_FROZEN: "false"
+          BUNDLE_DEPLOYMENT: "false"
+        run: bundle install --jobs 4 --retry 3
+
       - name: Install RuboCop
         run: gem install rubocop -v "~> 1.59"
 
