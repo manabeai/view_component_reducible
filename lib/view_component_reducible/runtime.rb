@@ -11,7 +11,7 @@ module ViewComponentReducible
     # @param controller [ActionController::Base]
     # @return [Array<Hash, String>] [new_envelope, html]
     def call(envelope:, msg:, target_path:, controller:)
-      root_klass = ViewComponentReducible.registry.fetch(envelope["root"])
+      root_klass = ViewComponentReducible.registry.fetch(envelope['root'])
       new_env = deep_dup(envelope)
 
       new_env = dispatch_to_path(root_klass, new_env, msg, target_path, controller)
@@ -25,7 +25,7 @@ module ViewComponentReducible
     # @param controller [ActionController::Base]
     # @return [String]
     def render_target(envelope:, target_path:, controller:)
-      root_klass = ViewComponentReducible.registry.fetch(envelope["root"])
+      root_klass = ViewComponentReducible.registry.fetch(envelope['root'])
       component_klass, env = find_env_and_class(root_klass, envelope, target_path)
       controller.view_context.render(component_klass.new(vcr_envelope: env))
     end
@@ -33,12 +33,12 @@ module ViewComponentReducible
     private
 
     def dispatch_to_path(root_klass, env, msg, target_path, controller)
-      if target_path == env["path"]
+      if target_path == env['path']
         apply_reducer(root_klass, env, msg, controller)
       else
-        child = env["children"].fetch(target_path) { raise KeyError, "Unknown path: #{target_path}" }
-        child_klass = ViewComponentReducible.registry.fetch(child["root"])
-        env["children"][target_path] = dispatch_to_path(child_klass, child, msg, target_path, controller)
+        child = env['children'].fetch(target_path) { raise KeyError, "Unknown path: #{target_path}" }
+        child_klass = ViewComponentReducible.registry.fetch(child['root'])
+        env['children'][target_path] = dispatch_to_path(child_klass, child, msg, target_path, controller)
         env
       end
     end
@@ -46,12 +46,12 @@ module ViewComponentReducible
     def apply_reducer(component_klass, env, msg, controller)
       component = component_klass.new(vcr_envelope: env)
       schema = component_klass.vcr_state_schema
-      data, meta = schema.build(env["data"], env["meta"])
-      state = { "data" => data, "meta" => meta }
+      data, meta = schema.build(env['data'], env['meta'])
+      state = { 'data' => data, 'meta' => meta }
 
       new_state, effects = component.reduce(state, msg)
-      env["data"] = new_state["data"]
-      env["meta"] = new_state["meta"]
+      env['data'] = new_state['data']
+      env['meta'] = new_state['meta']
 
       run_effects(component_klass, env, effects, controller)
     end
@@ -64,19 +64,19 @@ module ViewComponentReducible
 
       while (eff = effects_queue.shift)
         steps += 1
-        raise "Too many effect steps" if steps > MAX_EFFECT_STEPS
+        raise 'Too many effect steps' if steps > MAX_EFFECT_STEPS
 
         follow_msg = eff.call(controller: controller, envelope: env)
         next unless follow_msg
 
         component = component_klass.new(vcr_envelope: env)
         schema = component_klass.vcr_state_schema
-        data, meta = schema.build(env["data"], env["meta"])
-        state = { "data" => data, "meta" => meta }
+        data, meta = schema.build(env['data'], env['meta'])
+        state = { 'data' => data, 'meta' => meta }
 
         new_state, new_effects = component.reduce(state, follow_msg)
-        env["data"] = new_state["data"]
-        env["meta"] = new_state["meta"]
+        env['data'] = new_state['data']
+        env['meta'] = new_state['meta']
         effects_queue.concat(Array(new_effects))
       end
 
@@ -88,10 +88,10 @@ module ViewComponentReducible
     end
 
     def find_env_and_class(component_klass, env, target_path)
-      return [component_klass, env] if target_path == env["path"]
+      return [component_klass, env] if target_path == env['path']
 
-      child = env["children"].fetch(target_path) { raise KeyError, "Unknown path: #{target_path}" }
-      child_klass = ViewComponentReducible.registry.fetch(child["root"])
+      child = env['children'].fetch(target_path) { raise KeyError, "Unknown path: #{target_path}" }
+      child_klass = ViewComponentReducible.registry.fetch(child['root'])
       find_env_and_class(child_klass, child, target_path)
     end
 

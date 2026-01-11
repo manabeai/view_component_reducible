@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "erb"
+require 'erb'
 
 module ViewComponentReducible
   # Helpers for dispatch responses.
@@ -24,7 +24,7 @@ module ViewComponentReducible
       SCRIPT
 
       injection = meta + script
-      html.include?("</head>") ? html.sub("</head>", "#{injection}</head>") : (injection + html)
+      html.include?('</head>') ? html.sub('</head>', "#{injection}</head>") : (injection + html)
     end
   end
 end

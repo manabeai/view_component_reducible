@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "json"
+require 'json'
 
 module ViewComponentReducible
   # View helpers for dispatching messages to the VCR endpoint.
@@ -21,16 +21,16 @@ module ViewComponentReducible
     # @param url [String]
     # @yield block for the form body (e.g., submit button)
     # @return [String]
-    def vcr_dispatch_form(state:, msg_type:, msg_payload: {}, target_path: "root", url: "/vcr/dispatch", &block)
+    def vcr_dispatch_form(state:, msg_type:, msg_payload: {}, target_path: 'root', url: '/vcr/dispatch', &block)
       payload = msg_payload.is_a?(String) ? msg_payload : JSON.generate(msg_payload)
 
       form_tag(url, method: :post, data: { vcr_form: true }) do
         body = [
-          hidden_field_tag("vcr_state", state),
-          hidden_field_tag("vcr_msg_type", msg_type),
-          hidden_field_tag("vcr_msg_payload", payload),
-          hidden_field_tag("vcr_target_path", target_path),
-          (block_given? ? capture(&block) : "")
+          hidden_field_tag('vcr_state', state),
+          hidden_field_tag('vcr_msg_type', msg_type),
+          hidden_field_tag('vcr_msg_payload', payload),
+          hidden_field_tag('vcr_target_path', target_path),
+          (block_given? ? capture(&block) : '')
         ]
         safe_join(body)
       end

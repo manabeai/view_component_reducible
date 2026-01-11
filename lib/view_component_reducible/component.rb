@@ -29,11 +29,11 @@ module ViewComponentReducible
     # Build state hash for rendering from the envelope.
     # @return [Hash{String=>Hash}]
     def vcr_state
-      return { "data" => {}, "meta" => {} } if vcr_envelope.nil?
+      return { 'data' => {}, 'meta' => {} } if vcr_envelope.nil?
 
       schema = self.class.vcr_state_schema
-      data, meta = schema.build(vcr_envelope["data"], vcr_envelope["meta"])
-      { "data" => data, "meta" => meta }
+      data, meta = schema.build(vcr_envelope['data'], vcr_envelope['meta'])
+      { 'data' => data, 'meta' => meta }
     end
 
     # Optional DOM target id for updates.
@@ -48,7 +48,7 @@ module ViewComponentReducible
     # @return [String]
     def render_in(view_context, &block)
       rendered = super
-      path = vcr_envelope && vcr_envelope["path"]
+      path = vcr_envelope && vcr_envelope['path']
       return rendered if path.nil? || path.to_s.empty?
 
       view_context.content_tag(:div, rendered, data: { vcr_path: path })

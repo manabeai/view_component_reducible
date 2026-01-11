@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.describe ViewComponentReducible::State::Envelope do
-  it "builds the initial envelope from schema defaults" do
+  it 'builds the initial envelope from schema defaults' do
     klass = Class.new do
       include ViewComponentReducible::Component
 
-      def self.name = "MyFormComponent"
+      def self.name = 'MyFormComponent'
 
       state do
-        field :name, default: ""
+        field :name, default: ''
         meta :loading, default: false
       end
     end
@@ -17,12 +17,12 @@ RSpec.describe ViewComponentReducible::State::Envelope do
 
     expect(envelope).to eq(
       {
-        "v" => 1,
-        "root" => "MyFormComponent",
-        "path" => "root",
-        "data" => { "name" => "" },
-        "children" => {},
-        "meta" => { "loading" => false }
+        'v' => 1,
+        'root' => 'MyFormComponent',
+        'path' => 'root',
+        'data' => { 'name' => '' },
+        'children' => {},
+        'meta' => { 'loading' => false }
       }
     )
   end

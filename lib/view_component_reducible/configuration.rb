@@ -15,9 +15,9 @@ module ViewComponentReducible
     # @param controller [ActionController::Base]
     # @param adapter_class [Class, nil]
     # @return [ViewComponentReducible::Adapter::Base]
-    def adapter_for(controller, adapter_class: nil)
+    def adapter_for(_controller, adapter_class: nil)
       resolved_secret = secret || default_secret
-      raise "ViewComponentReducible secret is missing" if resolved_secret.nil?
+      raise 'ViewComponentReducible secret is missing' if resolved_secret.nil?
 
       (adapter_class || adapter).new(secret: resolved_secret)
     end

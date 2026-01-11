@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "active_support"
-require "active_support/message_verifier"
-require "securerandom"
+require 'active_support'
+require 'active_support/message_verifier'
+require 'securerandom'
 
 module ViewComponentReducible
   module Adapter
@@ -10,7 +10,7 @@ module ViewComponentReducible
     class Session < Base
       # @return [ActiveSupport::MessageVerifier]
       def verifier
-        @verifier ||= ActiveSupport::MessageVerifier.new(@secret, digest: "SHA256", serializer: JSON)
+        @verifier ||= ActiveSupport::MessageVerifier.new(@secret, digest: 'SHA256', serializer: JSON)
       end
 
       # @param envelope [Hash]
@@ -19,15 +19,15 @@ module ViewComponentReducible
       def dump(envelope, request:)
         key = SecureRandom.hex(16)
         request.session["vcr:#{key}"] = envelope
-        verifier.generate({ "k" => key })
+        verifier.generate({ 'k' => key })
       end
 
       # @param request [ActionDispatch::Request]
       # @return [Hash]
       def load(request:)
-        signed = request.params.fetch("vcr_state")
+        signed = request.params.fetch('vcr_state')
         payload = verifier.verify(signed)
-        key = payload.fetch("k")
+        key = payload.fetch('k')
         request.session.fetch("vcr:#{key}")
       end
     end

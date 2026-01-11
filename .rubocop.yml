@@ -9,5 +9,15 @@ AllCops:
 Layout/LineLength:
   Max: 120
 
+Metrics/BlockLength:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/AbcSize:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: False
+Metrics/PerceivedComplexity:
+  Enabled: false
 Style/Documentation:
   Enabled: false

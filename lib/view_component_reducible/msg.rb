@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "json"
+require 'json'
 
 module ViewComponentReducible
   # Message payload sent from the client.
@@ -9,9 +9,9 @@ module ViewComponentReducible
     # @param params [Hash]
     # @return [ViewComponentReducible::Msg]
     def self.from_params(params)
-      type = params.fetch("vcr_msg_type")
-      payload_json = params["vcr_msg_payload"]
-      payload = payload_json && payload_json != "" ? JSON.parse(payload_json) : {}
+      type = params.fetch('vcr_msg_type')
+      payload_json = params['vcr_msg_payload']
+      payload = payload_json && payload_json != '' ? JSON.parse(payload_json) : {}
       new(type:, payload:)
     end
   end
