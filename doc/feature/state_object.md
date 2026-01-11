@@ -1,8 +1,8 @@
 # State object enhancement (pattern match ready)
 
 Goal:
-- Introduce a State object with `deconstruct`/`deconstruct_keys`.
-- Enable Ruby pattern matching while keeping current hash-based API usable.
+- Use Ruby's `Data` for state with `deconstruct`/`deconstruct_keys`.
+- Enable Ruby pattern matching while keeping hash-based view access.
 
 ## Motivation
 - Improve readability in reducers using `case ... in` patterns.
@@ -19,12 +19,7 @@ end
 
 def reduce(state, msg)
   case state
-  in { "count" => Integer => count }
-    # current hash style still works
-  end
-
-  case state
-  in ViewComponentReducible::State::Object(count:, last_updated_at:)
+  in Data(count:, last_updated_at:)
     # pattern match friendly
   end
 end
@@ -33,39 +28,14 @@ end
 ## State object sketch
 
 ```ruby
-module ViewComponentReducible
-  module State
-    class Object
-      attr_reader :state
-
-      def initialize(state:)
-        @state = state
-      end
-
-      def deconstruct
-        [state]
-      end
-
-      def deconstruct_keys(keys)
-        keys ? state.slice(*keys) : state
-      end
-
-      def to_h
-        state
-      end
-    end
-  end
-end
-```
-
 ## Runtime integration
-- `Runtime#apply_reducer` builds a `State::Object` instead of a raw hash.
-- Reducer returns a flat state hash OR `State::Object`.
+- `Runtime#apply_reducer` builds a `Data` object instead of a raw hash.
+- Reducer returns a flat state hash OR `Data`.
 - Normalize output before writing to the envelope.
 
 ## Compatibility
 - Keep `vcr_state` returning a flat hash for templates.
-- Provide `vcr_state_object` for advanced usage if needed.
+- Data accessors are available in reducers.
 
 ## Incremental steps
 1. Introduce `State::Object` and normalization helpers.

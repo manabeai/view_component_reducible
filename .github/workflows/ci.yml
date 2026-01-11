@@ -14,7 +14,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.1.4"
+          ruby-version: "3.2.4"
           bundler: "2.6.9"
 
       - name: Install gems
@@ -35,7 +35,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.1.4"
+          ruby-version: "3.2.4"
           bundler: "2.6.9"
 
       - name: Install gems

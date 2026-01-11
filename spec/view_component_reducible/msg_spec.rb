@@ -20,4 +20,17 @@ RSpec.describe ViewComponentReducible::Msg do
 
     expect(msg.payload).to eq({})
   end
+
+  it 'supports pattern matching with symbol types' do
+    msg = described_class.new(type: 'Increment', payload: { 'step' => 2 })
+
+    matched = case msg
+              in { type: :increment, payload: { 'step' => 2 } }
+                true
+              else
+                false
+              end
+
+    expect(matched).to eq(true)
+  end
 end

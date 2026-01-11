@@ -19,4 +19,14 @@ RSpec.describe ViewComponentReducible::State::Schema do
 
     expect(data['errors']).to eq({})
   end
+
+  it 'builds a Data object for reducers' do
+    schema = described_class.new
+    schema.add_field(:count, default: 0)
+
+    data = schema.build_data({ 'count' => 2 })
+
+    expect(data.count).to eq(2)
+    expect(data[:count]).to eq(2)
+  end
 end

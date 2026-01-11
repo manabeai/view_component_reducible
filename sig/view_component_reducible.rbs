@@ -51,7 +51,9 @@ module ViewComponentReducible
 
       def initialize: () -> void
       def add_field: (Symbol name, default: untyped) -> void
+      def data_class: () -> Class
       def build: (Hash[untyped, untyped] state_hash) -> Hash[String, untyped]
+      def build_data: (Hash[untyped, untyped] state_hash) -> untyped
       def defaults: () -> Hash[String, untyped]
     end
 

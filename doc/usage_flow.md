@@ -25,11 +25,15 @@ class MyFormComponent < ViewComponent::Base
   end
 
   # reduce is equivalent to Elm's update.
+  # state is a Data object (use accessors or [])
   def reduce(state, msg)
     case msg.type
     when "ClickedSave"
-      new_state = state.merge("loading" => true)
-      [new_state, []]
+      case state
+      in Data(loading:)
+        new_state = state.merge("loading" => true)
+        [new_state, []]
+      end
     else
       [state, []]
     end

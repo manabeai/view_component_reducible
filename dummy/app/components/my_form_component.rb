@@ -9,21 +9,21 @@ class MyFormComponent < ViewComponent::Base
   end
 
   def reduce(state, msg)
-    case msg.type
-    when "Increment"
+    case msg
+    in { type: :increment }
       new_state = state.merge(
-        "count" => state["count"] + 1,
+        "count" => state.count + 1,
         "last_updated_at" => Time.now.utc.iso8601
       )
       [new_state, []]
-    when "Decrement"
-      next_count = [state["count"] - 1, 0].max
+    in { type: :decrement }
+      next_count = [state.count - 1, 0].max
       new_state = state.merge(
         "count" => next_count,
         "last_updated_at" => Time.now.utc.iso8601
       )
       [new_state, []]
-    when "Reset"
+    in { type: :reset }
       new_state = state.merge("count" => 0)
       effects = [
         lambda do |controller:, envelope:|
@@ -32,7 +32,7 @@ class MyFormComponent < ViewComponent::Base
         end
       ]
       [new_state, effects]
-    when "ResetLogged"
+    in { type: :reset_logged }
       new_state = state.merge("last_updated_at" => msg.payload["at"])
       [new_state, []]
     else

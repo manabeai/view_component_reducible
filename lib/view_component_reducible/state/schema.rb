@@ -8,6 +8,8 @@ module ViewComponentReducible
 
       def initialize
         @fields = []
+        @data_class = nil
+        @data_class_fields = nil
       end
 
       # Add a field definition.
@@ -16,6 +18,24 @@ module ViewComponentReducible
       # @return [void]
       def add_field(name, default:)
         @fields << Field.new(name:, default:)
+      end
+
+      # @return [Class]
+      def data_class
+        field_names = @fields.map(&:name)
+        return @data_class if @data_class && @data_class_fields == field_names
+
+        @data_class_fields = field_names
+        @data_class = Data.define(*field_names) do
+          def [](key)
+            to_h[key.to_sym]
+          end
+
+          def merge(hash)
+            payload = to_h.merge(hash.transform_keys(&:to_sym))
+            self.class.new(**payload)
+          end
+        end
       end
 
       # Build state hashes from input payloads.
@@ -36,6 +56,14 @@ module ViewComponentReducible
           data[field.name.to_s] = value
         end
         data
+      end
+
+      # Build a Data object from input payloads.
+      # @param state_hash [Hash]
+      # @return [Data]
+      def build_data(state_hash)
+        data = build(state_hash)
+        data_class.new(**data.transform_keys(&:to_sym))
       end
 
       # Build default state hashes.

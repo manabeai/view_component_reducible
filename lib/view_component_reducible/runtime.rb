@@ -46,10 +46,10 @@ module ViewComponentReducible
     def apply_reducer(component_klass, env, msg, controller)
       component = component_klass.new(vcr_envelope: env)
       schema = component_klass.vcr_state_schema
-      state = schema.build(env['data'])
+      state = schema.build_data(env['data'])
 
       new_state, effects = component.reduce(state, msg)
-      env['data'] = new_state
+      env['data'] = normalize_state(new_state, schema)
 
       run_effects(component_klass, env, effects, controller)
     end
@@ -69,10 +69,10 @@ module ViewComponentReducible
 
         component = component_klass.new(vcr_envelope: env)
         schema = component_klass.vcr_state_schema
-        state = schema.build(env['data'])
+        state = schema.build_data(env['data'])
 
         new_state, new_effects = component.reduce(state, follow_msg)
-        env['data'] = new_state
+        env['data'] = normalize_state(new_state, schema)
         effects_queue.concat(Array(new_effects))
       end
 
@@ -89,6 +89,16 @@ module ViewComponentReducible
       child = env['children'].fetch(target_path) { raise KeyError, "Unknown path: #{target_path}" }
       child_klass = ViewComponentReducible.registry.fetch(child['root'])
       find_env_and_class(child_klass, child, target_path)
+    end
+
+    def normalize_state(state, schema)
+      if state.is_a?(schema.data_class)
+        state.to_h.transform_keys(&:to_s)
+      elsif state.is_a?(Hash)
+        schema.build(state)
+      else
+        raise ArgumentError, "Reducer must return a Hash or #{schema.data_class}"
+      end
     end
 
     def deep_dup(obj)
