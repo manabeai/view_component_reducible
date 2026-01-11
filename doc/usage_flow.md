@@ -39,15 +39,14 @@ end
 
 ## 3. Render state in the template
 
-Use the values defined in the state DSL.
+Use the values defined in the state DSL. The component output is automatically wrapped
+with a `data-vcr-path` boundary based on the envelope path.
 
 ```erb
-<%= helpers.vcr_boundary(path: vcr_envelope["path"]) do %>
-  <div>
-    <p>Name: <%= vcr_state["data"]["name"] %></p>
-    <p>Loading: <%= vcr_state["meta"]["loading"] %></p>
-  </div>
-<% end %>
+<div>
+  <p>Name: <%= vcr_state["data"]["name"] %></p>
+  <p>Loading: <%= vcr_state["meta"]["loading"] %></p>
+</div>
 ```
 
 ## 4. Trigger dispatch to the VCR endpoint

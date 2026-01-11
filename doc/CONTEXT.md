@@ -32,7 +32,7 @@
 ## ダミーアプリ（dummy/）
 - `MyFormComponent` は `count`/`last_updated_at` を持つ
 - `Increment/Decrement/Reset/UpdatedAt` を reducer で処理
-- `vcr_boundary` で境界を付与
+- コンポーネント境界は自動で `data-vcr-path` を付与
 - layout で `vcr_dispatch_script_tag` を挿入
 - Tailwind CDN で UI をリッチ化
 
@@ -43,6 +43,5 @@
 - `doc/tasks.md` に未解決タスク
 
 ## 既知の課題
-- `vcr_boundary` の自動化は未実装（手動）
 - 部分更新のDOM差し替えは最小JSで実装済み
 - テストはhelpers中心で拡充途中
