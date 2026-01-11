@@ -19,6 +19,7 @@ module ViewComponentReducible
     def vcr_state_token: () -> String?
     def vcr_state: () -> Hash[String, Hash[String, untyped]]
     def vcr_dom_id: (path: String) -> String
+    def render_in: (ActionView::Base view_context) { () -> untyped } -> String
 
     module ClassMethods
       def vcr_id: () -> String

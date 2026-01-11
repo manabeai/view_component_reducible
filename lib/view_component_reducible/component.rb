@@ -43,6 +43,17 @@ module ViewComponentReducible
       "vcr:#{self.class.vcr_id}:#{path}"
     end
 
+    # Render component markup wrapped in a VCR boundary when available.
+    # @param view_context [ActionView::Base]
+    # @return [String]
+    def render_in(view_context, &block)
+      rendered = super
+      path = vcr_envelope && vcr_envelope["path"]
+      return rendered if path.nil? || path.to_s.empty?
+
+      view_context.content_tag(:div, rendered, data: { vcr_path: path })
+    end
+
     module ClassMethods
       # Stable component identifier for envelopes.
       # @return [String]
