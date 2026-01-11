@@ -37,4 +37,4 @@ envelope = ViewComponentReducible::State::Envelope.initial(MyFormComponent)
 
 - `field` defines state fields stored under the `data` key in the envelope.
 - Defaults can be plain values or callables (e.g., `-> { {} }`).
-- Reducers receive a `Data` object with accessor methods for each field.
+- Reducers receive a `Data` object with accessor methods and `with(...)` for updates.

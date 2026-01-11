@@ -31,7 +31,7 @@ class MyFormComponent < ViewComponent::Base
     when "ClickedSave"
       case state
       in Data(loading:)
-        new_state = state.merge("loading" => true)
+        new_state = state.with(loading: true)
         [new_state, []]
       end
     else

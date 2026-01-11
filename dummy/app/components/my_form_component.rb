@@ -11,20 +11,20 @@ class MyFormComponent < ViewComponent::Base
   def reduce(state, msg)
     case msg
     in { type: :increment }
-      new_state = state.merge(
-        "count" => state.count + 1,
-        "last_updated_at" => Time.now.utc.iso8601
+      new_state = state.with(
+        count: state.count + 1,
+        last_updated_at: Time.now.utc.iso8601
       )
       [new_state, []]
     in { type: :decrement }
       next_count = [state.count - 1, 0].max
-      new_state = state.merge(
-        "count" => next_count,
-        "last_updated_at" => Time.now.utc.iso8601
+      new_state = state.with(
+        count: next_count,
+        last_updated_at: Time.now.utc.iso8601
       )
       [new_state, []]
     in { type: :reset }
-      new_state = state.merge("count" => 0)
+      new_state = state.with(count: 0)
       effects = [
         lambda do |controller:, envelope:|
           controller.logger.info("reset count for #{envelope["path"]}")
@@ -33,7 +33,7 @@ class MyFormComponent < ViewComponent::Base
       ]
       [new_state, effects]
     in { type: :reset_logged }
-      new_state = state.merge("last_updated_at" => msg.payload["at"])
+      new_state = state.with(last_updated_at: msg.payload["at"])
       [new_state, []]
     else
       [state, []]

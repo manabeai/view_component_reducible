@@ -22,10 +22,10 @@ RSpec.describe ViewComponentReducible::Msg do
   end
 
   it 'supports pattern matching with symbol types' do
-    msg = described_class.new(type: 'Increment', payload: { 'step' => 2 })
+    msg = described_class.new(type: 'Increment', payload: { step: 2 })
 
     matched = case msg
-              in { type: :increment, payload: { 'step' => 2 } }
+              in { type: :increment, payload: { step: 2 } }
                 true
               else
                 false

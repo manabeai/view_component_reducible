@@ -30,11 +30,6 @@ module ViewComponentReducible
           def [](key)
             to_h[key.to_sym]
           end
-
-          def merge(hash)
-            payload = to_h.merge(hash.transform_keys(&:to_sym))
-            self.class.new(**payload)
-          end
         end
       end
 
