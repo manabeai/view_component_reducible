@@ -58,7 +58,12 @@ module ViewComponentReducible
       # Stable component identifier for envelopes.
       # @return [String]
       def vcr_id
-        name.to_s
+        component_name = name.to_s
+        return "anonymous_component_#{object_id}" if component_name.empty?
+
+        return component_name.demodulize.underscore if component_name.respond_to?(:demodulize)
+
+        component_name
       end
     end
   end
