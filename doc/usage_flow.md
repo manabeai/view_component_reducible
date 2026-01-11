@@ -21,14 +21,14 @@ class MyFormComponent < ViewComponent::Base
 
   state do
     field :name, default: ""
-    meta :loading, default: false
+    field :loading, default: false
   end
 
   # reduce is equivalent to Elm's update.
   def reduce(state, msg)
     case msg.type
     when "ClickedSave"
-      new_state = state.merge("meta" => state["meta"].merge("loading" => true))
+      new_state = state.merge("loading" => true)
       [new_state, []]
     else
       [state, []]
@@ -44,8 +44,8 @@ with a `data-vcr-path` boundary based on the envelope path.
 
 ```erb
 <div>
-  <p>Name: <%= vcr_state["data"]["name"] %></p>
-  <p>Loading: <%= vcr_state["meta"]["loading"] %></p>
+  <p>Name: <%= vcr_state["name"] %></p>
+  <p>Loading: <%= vcr_state["loading"] %></p>
 </div>
 ```
 

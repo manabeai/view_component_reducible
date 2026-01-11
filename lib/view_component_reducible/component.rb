@@ -29,13 +29,12 @@ module ViewComponentReducible
     end
 
     # Build state hash for rendering from the envelope.
-    # @return [Hash{String=>Hash}]
+    # @return [Hash{String=>Object}]
     def vcr_state
-      return { 'data' => {}, 'meta' => {} } if vcr_envelope.nil?
+      return {} if vcr_envelope.nil?
 
       schema = self.class.vcr_state_schema
-      data, meta = schema.build(vcr_envelope['data'], vcr_envelope['meta'])
-      { 'data' => data, 'meta' => meta }
+      schema.build(vcr_envelope['data'])
     end
 
     # Optional DOM target id for updates.

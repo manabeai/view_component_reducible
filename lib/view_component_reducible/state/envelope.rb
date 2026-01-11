@@ -10,14 +10,13 @@ module ViewComponentReducible
       # @return [Hash{String=>Object}]
       def self.initial(root_component_klass, path: 'root')
         schema = root_component_klass.vcr_state_schema
-        data, meta = schema.defaults
+        data = schema.defaults
         {
           'v' => 1,
           'root' => root_component_klass.vcr_id,
           'path' => path,
           'data' => data,
-          'children' => {},
-          'meta' => meta
+          'children' => {}
         }
       end
     end

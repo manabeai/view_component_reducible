@@ -46,12 +46,10 @@ module ViewComponentReducible
     def apply_reducer(component_klass, env, msg, controller)
       component = component_klass.new(vcr_envelope: env)
       schema = component_klass.vcr_state_schema
-      data, meta = schema.build(env['data'], env['meta'])
-      state = { 'data' => data, 'meta' => meta }
+      state = schema.build(env['data'])
 
       new_state, effects = component.reduce(state, msg)
-      env['data'] = new_state['data']
-      env['meta'] = new_state['meta']
+      env['data'] = new_state
 
       run_effects(component_klass, env, effects, controller)
     end
@@ -71,12 +69,10 @@ module ViewComponentReducible
 
         component = component_klass.new(vcr_envelope: env)
         schema = component_klass.vcr_state_schema
-        data, meta = schema.build(env['data'], env['meta'])
-        state = { 'data' => data, 'meta' => meta }
+        state = schema.build(env['data'])
 
         new_state, new_effects = component.reduce(state, follow_msg)
-        env['data'] = new_state['data']
-        env['meta'] = new_state['meta']
+        env['data'] = new_state
         effects_queue.concat(Array(new_effects))
       end
 

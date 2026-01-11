@@ -4,7 +4,7 @@ module ViewComponentReducible
   module State
     # State schema for defining default fields and building state payloads.
     class Schema
-      Field = Struct.new(:name, :default, :kind, keyword_init: true) # kind: :data or :meta
+      Field = Struct.new(:name, :default, keyword_init: true)
 
       def initialize
         @fields = []
@@ -13,21 +13,18 @@ module ViewComponentReducible
       # Add a field definition.
       # @param name [Symbol]
       # @param default [Object, #call]
-      # @param kind [Symbol] :data or :meta
       # @return [void]
-      def add_field(name, default:, kind:)
-        @fields << Field.new(name:, default:, kind:)
+      def add_field(name, default:)
+        @fields << Field.new(name:, default:)
       end
 
       # Build state hashes from input payloads.
-      # @param data_hash [Hash]
-      # @param meta_hash [Hash]
-      # @return [Array<Hash{String=>Object}>] [data, meta]
-      def build(data_hash, meta_hash)
+      # @param state_hash [Hash]
+      # @return [Hash{String=>Object}]
+      def build(state_hash)
         data = {}
-        meta = {}
         @fields.each do |field|
-          src = (field.kind == :meta ? meta_hash : data_hash) || {}
+          src = state_hash || {}
           value = if src.key?(field.name.to_s)
                     src[field.name.to_s]
                   elsif src.key?(field.name)
@@ -36,19 +33,15 @@ module ViewComponentReducible
           value = field.default.call if value.nil? && field.default.respond_to?(:call)
           value = field.default if value.nil? && !field.default.respond_to?(:call)
 
-          if field.kind == :meta
-            meta[field.name.to_s] = value
-          else
-            data[field.name.to_s] = value
-          end
+          data[field.name.to_s] = value
         end
-        [data, meta]
+        data
       end
 
       # Build default state hashes.
-      # @return [Array<Hash{String=>Object}>] [data, meta]
+      # @return [Hash{String=>Object}]
       def defaults
-        build({}, {})
+        build({})
       end
     end
   end

@@ -4,7 +4,7 @@
 最小構成で「HTTPのみ」「JS最小」で状態遷移を回すのが狙い。
 
 ## 現状の仕様（重要）
-- `state` DSL で data/meta を定義する
+- `state` DSL でフラットな state を定義する
 - `Envelope` が初期状態を生成
 - `Msg` が `vcr_msg_type`/`vcr_msg_payload` を解釈
 - `Runtime` が reducer 実行 → HTML をレンダリング

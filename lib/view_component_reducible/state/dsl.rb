@@ -28,20 +28,12 @@ module ViewComponentReducible
       class Builder
         def initialize(schema) = (@schema = schema)
 
-        # Define a data field.
+        # Define a state field.
         # @param name [Symbol]
         # @param default [Object, #call]
         # @return [void]
         def field(name, default:)
-          @schema.add_field(name, default:, kind: :data)
-        end
-
-        # Define a meta field.
-        # @param name [Symbol]
-        # @param default [Object, #call]
-        # @return [void]
-        def meta(name, default:)
-          @schema.add_field(name, default:, kind: :meta)
+          @schema.add_field(name, default:)
         end
       end
     end

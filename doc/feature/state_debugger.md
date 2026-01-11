@@ -10,7 +10,7 @@ Goal:
   - request timestamp
   - msg type + payload
   - target path
-  - before/after state (data/meta)
+  - before/after state
 - Render a simple timeline in HTML, appended to the response.
 
 ## Proposed API

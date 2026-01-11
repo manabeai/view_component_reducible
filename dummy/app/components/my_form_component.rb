@@ -12,23 +12,19 @@ class MyFormComponent < ViewComponent::Base
     case msg.type
     when "Increment"
       new_state = state.merge(
-        "data" => state["data"].merge(
-          "count" => state["data"]["count"] + 1,
-          "last_updated_at" => Time.now.utc.iso8601
-        )
+        "count" => state["count"] + 1,
+        "last_updated_at" => Time.now.utc.iso8601
       )
       [new_state, []]
     when "Decrement"
-      next_count = [state["data"]["count"] - 1, 0].max
+      next_count = [state["count"] - 1, 0].max
       new_state = state.merge(
-        "data" => state["data"].merge(
-          "count" => next_count,
-          "last_updated_at" => Time.now.utc.iso8601
-        )
+        "count" => next_count,
+        "last_updated_at" => Time.now.utc.iso8601
       )
       [new_state, []]
     when "Reset"
-      new_state = state.merge("data" => state["data"].merge("count" => 0))
+      new_state = state.merge("count" => 0)
       effects = [
         lambda do |controller:, envelope:|
           controller.logger.info("reset count for #{envelope["path"]}")
@@ -37,7 +33,7 @@ class MyFormComponent < ViewComponent::Base
       ]
       [new_state, effects]
     when "ResetLogged"
-      new_state = state.merge("data" => state["data"].merge("last_updated_at" => msg.payload["at"]))
+      new_state = state.merge("last_updated_at" => msg.payload["at"])
       [new_state, []]
     else
       [state, []]

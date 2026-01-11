@@ -19,7 +19,7 @@ end
 
 def reduce(state, msg)
   case state
-  in { "data" => { "count" => Integer => count }, "meta" => meta }
+  in { "count" => Integer => count }
     # current hash style still works
   end
 
@@ -36,24 +36,22 @@ end
 module ViewComponentReducible
   module State
     class Object
-      attr_reader :data, :meta
+      attr_reader :state
 
-      def initialize(data:, meta:)
-        @data = data
-        @meta = meta
+      def initialize(state:)
+        @state = state
       end
 
       def deconstruct
-        [data, meta]
+        [state]
       end
 
       def deconstruct_keys(keys)
-        payload = data.merge(meta)
-        keys ? payload.slice(*keys) : payload
+        keys ? state.slice(*keys) : state
       end
 
       def to_h
-        { "data" => data, "meta" => meta }
+        state
       end
     end
   end
@@ -62,11 +60,11 @@ end
 
 ## Runtime integration
 - `Runtime#apply_reducer` builds a `State::Object` instead of a raw hash.
-- Reducer returns `{ "data" => ..., "meta" => ... }` OR `State::Object`.
+- Reducer returns a flat state hash OR `State::Object`.
 - Normalize output before writing to the envelope.
 
 ## Compatibility
-- Keep `vcr_state` returning the old hash shape for templates.
+- Keep `vcr_state` returning a flat hash for templates.
 - Provide `vcr_state_object` for advanced usage if needed.
 
 ## Incremental steps

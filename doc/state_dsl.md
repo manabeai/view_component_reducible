@@ -14,9 +14,8 @@ class MyFormComponent
     field :name, default: ""
     field :email, default: ""
     field :page, default: 1
-
-    meta :errors, default: {}
-    meta :loading, default: false
+    field :errors, default: {}
+    field :loading, default: false
   end
 end
 ```
@@ -29,14 +28,12 @@ envelope = ViewComponentReducible::State::Envelope.initial(MyFormComponent)
 #      "v" => 1,
 #      "root" => "MyFormComponent",
 #      "path" => "root",
-#      "data" => { "name" => "", "email" => "", "page" => 1 },
-#      "children" => {},
-#      "meta" => { "errors" => {}, "loading" => false }
+#      "data" => { "name" => "", "email" => "", "page" => 1, "errors" => {}, "loading" => false },
+#      "children" => {}
 #    }
 ```
 
 ## Notes
 
-- `field` defines data fields stored under the `data` key.
-- `meta` defines metadata fields stored under the `meta` key.
+- `field` defines state fields stored under the `data` key in the envelope.
 - Defaults can be plain values or callables (e.g., `-> { {} }`).

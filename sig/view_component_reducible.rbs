@@ -17,7 +17,7 @@ module ViewComponentReducible
     def self.included: (untyped base) -> void
     def vcr_envelope: () -> Hash[untyped, untyped]?
     def vcr_state_token: () -> String?
-    def vcr_state: () -> Hash[String, Hash[String, untyped]]
+    def vcr_state: () -> Hash[String, untyped]
     def vcr_dom_id: (path: String) -> String
     def render_in: (ActionView::Base view_context) { () -> untyped } -> String
 
@@ -50,9 +50,9 @@ module ViewComponentReducible
       Field: Struct
 
       def initialize: () -> void
-      def add_field: (Symbol name, default: untyped, kind: Symbol) -> void
-      def build: (Hash[untyped, untyped] data_hash, Hash[untyped, untyped] meta_hash) -> [Hash[String, untyped], Hash[String, untyped]]
-      def defaults: () -> [Hash[String, untyped], Hash[String, untyped]]
+      def add_field: (Symbol name, default: untyped) -> void
+      def build: (Hash[untyped, untyped] state_hash) -> Hash[String, untyped]
+      def defaults: () -> Hash[String, untyped]
     end
 
     module DSL

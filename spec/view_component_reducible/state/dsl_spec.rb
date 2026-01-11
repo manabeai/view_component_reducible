@@ -7,14 +7,13 @@ RSpec.describe ViewComponentReducible::State::DSL do
 
       state do
         field :name, default: ''
-        meta :loading, default: false
+        field :loading, default: false
       end
     end
 
     schema = klass.vcr_state_schema
-    data, meta = schema.defaults
+    data = schema.defaults
 
-    expect(data).to eq({ 'name' => '' })
-    expect(meta).to eq({ 'loading' => false })
+    expect(data).to eq({ 'name' => '', 'loading' => false })
   end
 end

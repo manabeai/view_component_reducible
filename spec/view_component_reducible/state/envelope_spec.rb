@@ -9,7 +9,7 @@ RSpec.describe ViewComponentReducible::State::Envelope do
 
       state do
         field :name, default: ''
-        meta :loading, default: false
+        field :loading, default: false
       end
     end
 
@@ -20,9 +20,8 @@ RSpec.describe ViewComponentReducible::State::Envelope do
         'v' => 1,
         'root' => 'MyFormComponent',
         'path' => 'root',
-        'data' => { 'name' => '' },
-        'children' => {},
-        'meta' => { 'loading' => false }
+        'data' => { 'name' => '', 'loading' => false },
+        'children' => {}
       }
     )
   end
