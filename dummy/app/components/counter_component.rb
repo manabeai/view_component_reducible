@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class MyFormComponent < ViewComponent::Base
+class CounterComponent < ViewComponent::Base
   include ViewComponentReducible::Component
 
   state do

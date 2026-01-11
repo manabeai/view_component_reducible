@@ -6,6 +6,6 @@ ViewComponentReducible.configure do |config|
 end
 
 Rails.application.config.to_prepare do
-  require_dependency "my_form_component"
-  ViewComponentReducible.register(MyFormComponent)
+  require_dependency "counter_component"
+  ViewComponentReducible.register(CounterComponent)
 end
