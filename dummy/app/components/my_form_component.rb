@@ -11,23 +11,11 @@ class MyFormComponent < ViewComponent::Base
   def reduce(state, msg)
     case msg
     in { type: :increment }
-      new_state = state.with(
-        count: state.count + 1,
-        last_updated_at: Time.current
-      )
-      [new_state, []]
+      state.with(count: state.count + 1, last_updated_at: Time.current)
     in { type: :decrement }
-      next_count = [state.count - 1, 0].max
-      new_state = state.with(
-        count: next_count,
-        last_updated_at: Time.current
-      )
-      [new_state, []]
+      state.with(count: [state.count - 1, 0].max, last_updated_at: Time.current)
     in { type: :reset }
-      new_state = state.with(count: 0, last_updated_at: nil)
-      [new_state, []]
-    else
-      [state, []]
+      state.with(count: 0, last_updated_at: nil)
     end
   end
 end

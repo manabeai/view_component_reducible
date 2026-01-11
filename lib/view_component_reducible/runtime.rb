@@ -48,8 +48,9 @@ module ViewComponentReducible
       schema = component_klass.vcr_state_schema
       state = schema.build_data(env['data'])
 
-      new_state, effects = component.reduce(state, msg)
+      new_state = component.reduce(state, msg)
       env['data'] = normalize_state(new_state, schema)
+      effects = build_effects(component, schema, env['data'], msg)
 
       run_effects(component_klass, env, effects, controller)
     end
@@ -71,8 +72,9 @@ module ViewComponentReducible
         schema = component_klass.vcr_state_schema
         state = schema.build_data(env['data'])
 
-        new_state, new_effects = component.reduce(state, follow_msg)
+        new_state = component.reduce(state, follow_msg)
         env['data'] = normalize_state(new_state, schema)
+        new_effects = build_effects(component, schema, env['data'], follow_msg)
         effects_queue.concat(Array(new_effects))
       end
 
@@ -99,6 +101,13 @@ module ViewComponentReducible
       else
         raise ArgumentError, "Reducer must return a Hash or #{schema.data_class}"
       end
+    end
+
+    def build_effects(component, schema, state_hash, msg)
+      return [] unless component.respond_to?(:effects)
+
+      state = schema.build_data(state_hash)
+      Array(component.effects(state, msg))
     end
 
     def deep_dup(obj)

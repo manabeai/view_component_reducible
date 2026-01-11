@@ -27,15 +27,14 @@ class MyFormComponent < ViewComponent::Base
   # reduce is equivalent to Elm's update.
   # state is a Data object (use accessors or [])
   def reduce(state, msg)
-    case msg.type
-    when "ClickedSave"
+    case msg
+    in { type: :clicked_save }
       case state
       in Data(loading:)
-        new_state = state.with(loading: true)
-        [new_state, []]
+        state.with(loading: true)
       end
     else
-      [state, []]
+      state
     end
   end
 end
