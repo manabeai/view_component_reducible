@@ -15,7 +15,7 @@ class MyFormComponent < ViewComponent::Base
     in { type: :decrement }
       state.with(count: [state.count - 1, 0].max, last_updated_at: Time.current)
     in { type: :reset }
-      state.with(count: 0, last_updated_at: nil)
+      state.with_defaults
     end
   end
 end

@@ -29,4 +29,16 @@ RSpec.describe ViewComponentReducible::State::Schema do
     expect(data.count).to eq(2)
     expect(data[:count]).to eq(2)
   end
+
+  it 'resets values to defaults on Data' do
+    schema = described_class.new
+    schema.add_field(:count, default: 0)
+    schema.add_field(:loading, default: false)
+
+    data = schema.build_data({ 'count' => 1, 'loading' => true })
+    refreshed = data.with_defaults
+
+    expect(refreshed.loading).to eq(false)
+    expect(refreshed.count).to eq(0)
+  end
 end

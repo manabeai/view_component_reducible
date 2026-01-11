@@ -25,10 +25,16 @@ module ViewComponentReducible
         field_names = @fields.map(&:name)
         return @data_class if @data_class && @data_class_fields == field_names
 
+        defaults_proc = -> { build({}) }
         @data_class_fields = field_names
         @data_class = Data.define(*field_names) do
           def [](key)
             to_h[key.to_sym]
+          end
+
+          define_method(:with_defaults) do
+            defaults = defaults_proc.call.transform_keys(&:to_sym)
+            self.class.new(**defaults)
           end
         end
       end

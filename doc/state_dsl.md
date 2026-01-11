@@ -39,3 +39,4 @@ envelope = ViewComponentReducible::State::Envelope.initial(MyFormComponent)
 - Defaults can be plain values or callables (e.g., `-> { {} }`).
 - Reducers receive a `Data` object with accessor methods and `with(...)` for updates.
 - Define `effects(state, msg)` to return side effects when needed.
+- Call `state.with_defaults` to reset fields to defaults.
