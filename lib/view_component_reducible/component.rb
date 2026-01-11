@@ -61,7 +61,7 @@ module ViewComponentReducible
         component_name = name.to_s
         return "anonymous_component_#{object_id}" if component_name.empty?
 
-        return component_name.demodulize.underscore if component_name.respond_to?(:demodulize)
+        return component_name.demodulize if component_name.respond_to?(:demodulize)
 
         component_name
       end
