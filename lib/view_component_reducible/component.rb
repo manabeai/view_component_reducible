@@ -48,6 +48,8 @@ module ViewComponentReducible
     # @param view_context [ActionView::Base]
     # @return [String]
     def render_in(view_context, &block)
+      ensure_vcr_state(view_context) if vcr_envelope.nil?
+
       rendered = super
       path = vcr_envelope && vcr_envelope['path']
       return rendered if path.nil? || path.to_s.empty?
@@ -73,6 +75,18 @@ module ViewComponentReducible
       root['data-vcr-path'] = path
       html = fragment.to_html
       html.respond_to?(:html_safe) ? html.html_safe : html
+    end
+
+    def ensure_vcr_state(view_context)
+      return unless view_context.respond_to?(:controller)
+
+      controller = view_context.controller
+      return unless controller && controller.respond_to?(:request)
+
+      envelope = State::Envelope.initial(self.class)
+      adapter = ViewComponentReducible.config.adapter_for(controller)
+      @vcr_state_token = adapter.dump(envelope, request: controller.request)
+      @vcr_envelope = envelope
     end
   end
 end
