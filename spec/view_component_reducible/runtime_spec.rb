@@ -27,7 +27,7 @@ RSpec.describe ViewComponentReducible::Runtime do
         in { type: :inc_array }
           [state.with(count: state.count + 1)]
         in { type: :inc_effect }
-          effect = lambda do |controller:, envelope:|
+          effect = lambda do |**_kwargs|
             ViewComponentReducible::Msg.new(type: 'Inc', payload: { 'source' => 'effect' })
           end
           [state.with(count: state.count + 1), effect]

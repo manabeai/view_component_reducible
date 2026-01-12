@@ -8,9 +8,9 @@ module.exports = defineConfig({
     headless: true
   },
   webServer: {
-    command: 'RAILS_ENV=test bin/rails server -p 3000',
+    command: 'RAILS_ENV=test bin/rails server -b 127.0.0.1 -p 3000',
     cwd: 'spec/dummy',
-    url: 'http://localhost:3000',
+    url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI
   }
 });
