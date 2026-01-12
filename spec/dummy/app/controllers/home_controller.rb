@@ -6,4 +6,7 @@ class HomeController < ApplicationController
 
   def two_counters
   end
+
+  def effects
+  end
 end
