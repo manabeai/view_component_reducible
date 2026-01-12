@@ -1,3 +1,6 @@
+# important things to know about this repository
+- ensure run test `mise run all` by file changed or created
+- 
 # Repository Guidelines
 
 ## Project Structure & Module Organization
@@ -24,7 +27,7 @@
 - Write specs with clear `describe`/`context` blocks and expectation messages; keep unit tests fast.
 - Name files `*_spec.rb` and mirror the path of the code under test (e.g., `lib/view_component_reducible/foo.rb` → `spec/view_component_reducible/foo_spec.rb`).
 - Ensure new behavior is covered; avoid leaving placeholder failing specs in the suite.
-- ensure run test `mise run all` by file changed 
+
 
 ## Commit & Pull Request Guidelines
 - Use short, imperative commit messages (e.g., `Update gemspec to include LICENSE.txt in gem files`); group related changes per commit when possible.
