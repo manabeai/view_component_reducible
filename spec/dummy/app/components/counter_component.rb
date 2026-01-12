@@ -13,7 +13,7 @@ class CounterComponent < ViewComponent::Base
     in { type: :increment }
       state.with(count: state.count + 1, last_updated_at: Time.current)
     in { type: :decrement }
-      state.with(count: [state.count - 1, 0].max, last_updated_at: Time.current)
+      state.with(count: [ state.count - 1, 0 ].max, last_updated_at: Time.current)
     in { type: :reset }
       state.with_defaults
     end

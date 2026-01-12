@@ -2,7 +2,7 @@ AllCops:
   TargetRubyVersion: 3.2
   NewCops: disable
   Exclude:
-    - "dummy/**/*"
+    - "spec/dummy/**/*"
     - "vendor/**/*"
     - "node_modules/**/*"
 

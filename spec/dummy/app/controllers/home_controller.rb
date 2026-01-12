@@ -5,6 +5,5 @@ class HomeController < ApplicationController
   end
 
   def two_counters
-
   end
 end

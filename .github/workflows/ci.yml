@@ -26,6 +26,27 @@ jobs:
       - name: Run RSpec
         run: bundle exec rspec
 
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2.4"
+          bundler: "2.6.9"
+
+      - name: Install gems
+        env:
+          BUNDLE_FROZEN: "false"
+          BUNDLE_DEPLOYMENT: "false"
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Run e2e specs
+        run: bundle exec rspec spec/e2e
+
   lint:
     runs-on: ubuntu-latest
 

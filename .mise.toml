@@ -1,11 +1,15 @@
 [tasks.test]
 description = "Run RSpec"
-run = "bundle exec rspec"
+run = "bundle exec rspec && npm run test:e2e"
 
 [tasks."test:e2e"]
 description = "Run Playwright E2E"
 run = "npm run test:e2e"
 
-[tasks."test:all"]
+[tasks."test:spec"]
 description = "Run RSpec and Playwright E2E"
-run = "bundle exec rspec && npm run test:e2e"
+run = "bundle exec rspec"
+
+[tasks.lint]
+description = "Run Rubocop"
+run = "bundle exec rubocop -A"
