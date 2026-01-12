@@ -6,6 +6,5 @@ module ViewComponentReducible
   # Rails engine for mounting dispatch routes.
   class Engine < ::Rails::Engine
     isolate_namespace ViewComponentReducible
-
   end
 end

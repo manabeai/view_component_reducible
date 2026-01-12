@@ -81,7 +81,7 @@ module ViewComponentReducible
       return unless view_context.respond_to?(:controller)
 
       controller = view_context.controller
-      return unless controller && controller.respond_to?(:request)
+      return unless controller.respond_to?(:request)
 
       envelope = State::Envelope.initial(self.class)
       adapter = ViewComponentReducible.config.adapter_for(controller)
