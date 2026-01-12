@@ -55,8 +55,15 @@ test('booking flow reveals times and staff', async ({ page }) => {
   // 予約フロー画面へ遷移
   await page.goto('/effects');
 
+  // 右側のサマリが初期表示で未選択になっていることを確認
+  await expect(page.getByTestId('booking-summary')).toBeVisible();
+  await expect(page.getByTestId('selected-day')).toHaveText('-');
+  await expect(page.getByTestId('selected-time')).toHaveText('-');
+  await expect(page.getByTestId('selected-staff')).toHaveText('-');
+
   // 日付を選択して時間一覧を出す
   await page.getByTestId('day-15').click();
+  await expect(page.getByTestId('selected-day')).toHaveText('15');
   const timeButtons = page.locator('[data-testid^="time-"]');
   await expect(timeButtons.first()).toBeVisible();
   // 時間の件数が1〜6であることを確認
@@ -65,7 +72,9 @@ test('booking flow reveals times and staff', async ({ page }) => {
   expect(timeCount).toBeLessThanOrEqual(6);
 
   // 時間を選択してスタッフ一覧を出す
+  const selectedTime = await timeButtons.first().innerText();
   await timeButtons.first().click();
+  await expect(page.getByTestId('selected-time')).toHaveText(selectedTime);
   await expect(page.getByTestId('staff-list')).toBeVisible();
   // 初期状態では予約ボタンが出ないことを確認
   await expect(page.getByTestId('booking-button')).toHaveCount(0);
@@ -76,7 +85,9 @@ test('booking flow reveals times and staff', async ({ page }) => {
   const staffCount = await staffButtons.count();
   expect(staffCount).toBeGreaterThanOrEqual(2);
   // スタッフを選択して予約ボタンを表示
+  const selectedStaff = await staffButtons.first().innerText();
   await staffButtons.first().click();
   await expect(staffButtons.first()).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByTestId('selected-staff')).toHaveText(selectedStaff);
   await expect(page.getByTestId('booking-button')).toBeVisible();
 });
