@@ -16,4 +16,6 @@ view_component_reducible-*
 playwright-report/
 test-results/
 
+node_modules/
+
 *.key
