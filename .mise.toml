@@ -13,3 +13,7 @@ run = "bundle exec rspec"
 [tasks.lint]
 description = "Run Rubocop"
 run = "bundle exec rubocop -A"
+
+[tasks.all]
+description = "Run RSpec, Playwright E2E, and Rubocop"
+run = "bundle exec rspec && npm run test:e2e && rubocop -A"
