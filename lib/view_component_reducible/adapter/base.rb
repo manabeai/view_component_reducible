@@ -4,6 +4,11 @@ module ViewComponentReducible
   module Adapter
     # Base adapter interface for envelope serialization.
     class Base
+      # @return [String]
+      def self.state_param_name
+        'vcr_state'
+      end
+
       # @param secret [String]
       # @param _kwargs [Hash]
       def initialize(secret:, **_kwargs)

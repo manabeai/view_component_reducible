@@ -24,10 +24,11 @@ module ViewComponentReducible
     def vcr_dispatch_form(state:, msg_type:, msg_payload: {}, target_path: nil, url: '/vcr/dispatch', &block)
       payload = msg_payload.is_a?(String) ? msg_payload : JSON.generate(msg_payload)
       resolved_target = target_path || vcr_envelope_path || instance_variable_get(:@vcr_current_path) || 'root'
+      state_param = ViewComponentReducible.config.adapter.state_param_name
 
-      form_tag(url, method: :post, data: { vcr_form: true }) do
+      form_tag(url, method: :post, data: { vcr_form: true, vcr_state_param: state_param }) do
         body = [
-          hidden_field_tag('vcr_state', state),
+          hidden_field_tag(state_param, state),
           hidden_field_tag('vcr_msg_type', msg_type),
           hidden_field_tag('vcr_msg_payload', payload),
           hidden_field_tag('vcr_target_path', resolved_target),
@@ -74,7 +75,8 @@ module ViewComponentReducible
                 if (payload.state) {
                   var boundary = document.querySelector('[data-vcr-path="' + targetPath + '"]');
                   if (boundary) {
-                    boundary.querySelectorAll('input[name="vcr_state"]').forEach(function(input) {
+                    var stateParam = form.dataset.vcrStateParam || "vcr_state";
+                    boundary.querySelectorAll('input[name="' + stateParam + '"]').forEach(function(input) {
                       input.value = payload.state;
                     });
                   }

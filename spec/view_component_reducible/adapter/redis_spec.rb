@@ -25,7 +25,7 @@ RSpec.describe ViewComponentReducible::Adapter::Redis do
     request = Struct.new(:params).new({})
 
     signed = adapter.dump(envelope, request: request)
-    request.params['vcr_state'] = signed
+    request.params['vcr_state_key'] = signed
 
     expect(adapter.load(request: request)).to eq(envelope)
   end

@@ -14,7 +14,7 @@ RSpec.describe ViewComponentReducible::Helpers do
       target_path: 'root/1'
     ) { 'Go' }
 
-    expect(html).to include('name="vcr_state"')
+    expect(html).to include(%(name="#{ViewComponentReducible.config.adapter.state_param_name}"))
     expect(html).to include('value="token"')
     expect(html).to include('name="vcr_msg_type"')
     expect(html).to include('value="Ping"')

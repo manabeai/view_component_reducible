@@ -23,7 +23,7 @@ module ViewComponentReducible
       # @param request [ActionDispatch::Request]
       # @return [Hash]
       def load(request:)
-        signed = request.params.fetch('vcr_state')
+        signed = request.params.fetch(self.class.state_param_name)
         verifier.verify(signed)
       end
     end
