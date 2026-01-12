@@ -7,8 +7,5 @@ module ViewComponentReducible
   class Engine < ::Rails::Engine
     isolate_namespace ViewComponentReducible
 
-    routes.draw do
-      post '/dispatch', to: 'dispatch#call'
-    end
   end
 end
