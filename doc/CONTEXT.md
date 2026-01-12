@@ -6,7 +6,7 @@
 ## 現状の仕様（重要）
 - `state` DSL でフラットな state を定義する
 - `reduce` は `Data` の state を受け取る
-- `reduce` は新しい state を返し、必要なら `effects(state, msg)` で副作用を返す
+- `reduce` は `state` / `[state]` / `[state, effects...]` を返せる（必要なら `effects(state, msg)` も併用）
 - `Envelope` が初期状態を生成
 - `Msg` が `vcr_msg_type`/`vcr_msg_payload` を解釈
 - `Runtime` が reducer 実行 → HTML をレンダリング

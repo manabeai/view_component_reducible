@@ -5,7 +5,7 @@
 
 - UI is a pure-ish projection of state: `view(state) -> HTML`
 - User actions are Msg: `{ type, payload }`
-- State transition is reducer: `reduce(state, msg) -> [state', effects]`
+- State transition is reducer: `reduce(state, msg) -> state | [state] | [state, effects...]`
 - Effects are explicit and executed on the server, optionally producing follow-up Msg
 - No WebSocket required
 - Minimal JS only for optional partial updates (AJAX); without JS it still works (progressive enhancement)
@@ -82,4 +82,3 @@ lib/
       router.rb
     railtie.rb
 ```
-

@@ -119,12 +119,11 @@ module ViewComponentReducible
     def apply_reducer(component_klass, env, msg, controller)
       component = component_klass.new(vcr_envelope: env)
       schema = component_klass.vcr_state_schema
-      data, meta = schema.build(env["data"], env["meta"])
-      state = { "data" => data, "meta" => meta } # v0: keep plain hash
+      state = schema.build_data(env["data"])
 
-      new_state, effects = component.reduce(state, msg)
-      env["data"] = new_state["data"]
-      env["meta"] = new_state["meta"]
+      reduced_state, reducer_effects = normalize_reducer_result(component.reduce(state, msg))
+      env["data"] = normalize_state(reduced_state, schema)
+      effects = normalize_effects(reducer_effects) + normalize_effects(build_effects(component, schema, env["data"], msg))
 
       run_effects(component_klass, env, effects, controller)
     end
@@ -139,18 +138,17 @@ module ViewComponentReducible
         steps += 1
         raise "Too many effect steps" if steps > MAX_EFFECT_STEPS
 
-        follow_msg = eff.call(controller: controller, envelope: env)
+        follow_msg = resolve_effect_msg(eff, controller, env)
         next unless follow_msg
 
         component = component_klass.new
         schema = component_klass.vcr_state_schema
-        data, meta = schema.build(env["data"], env["meta"])
-        state = { "data" => data, "meta" => meta }
+        state = schema.build_data(env["data"])
 
-        new_state, new_effects = component.reduce(state, follow_msg)
-        env["data"] = new_state["data"]
-        env["meta"] = new_state["meta"]
-        effects_queue.concat(Array(new_effects))
+        reduced_state, reducer_effects = normalize_reducer_result(component.reduce(state, follow_msg))
+        env["data"] = normalize_state(reduced_state, schema)
+        new_effects = normalize_effects(reducer_effects) + normalize_effects(build_effects(component, schema, env["data"], follow_msg))
+        effects_queue.concat(new_effects)
       end
 
       env

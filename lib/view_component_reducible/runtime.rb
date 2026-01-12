@@ -48,34 +48,53 @@ module ViewComponentReducible
       schema = component_klass.vcr_state_schema
       state = schema.build_data(env['data'])
 
-      new_state = component.reduce(state, msg)
-      env['data'] = normalize_state(new_state, schema)
-      effects = build_effects(component, schema, env['data'], msg)
+      reducer_result = component.reduce(state, msg)
+      reduced_state, reducer_effects = case reducer_result
+                                       in state_only unless reducer_result.is_a?(Array)
+                                         [state_only, []]
+                                       in [state_only]
+                                         [state_only, []]
+                                       in [state_only, *effects]
+                                         [state_only, effects]
+                                       end
+      env['data'] = normalize_state(reduced_state, schema)
+      effects = normalize_effects(reducer_effects) + normalize_effects(build_effects(component, schema, env['data'],
+                                                                                     msg))
 
       run_effects(component_klass, env, effects, controller)
     end
 
     def run_effects(component_klass, env, effects, controller)
-      return env if effects.nil? || effects.empty?
+      effects_queue = normalize_effects(effects).dup
+      return env if effects_queue.empty?
 
-      effects_queue = effects.dup
       steps = 0
 
       while (eff = effects_queue.shift)
         steps += 1
         raise 'Too many effect steps' if steps > MAX_EFFECT_STEPS
 
-        follow_msg = eff.call(controller: controller, envelope: env)
+        follow_msg = resolve_effect_msg(eff, controller, env)
         next unless follow_msg
+        raise ArgumentError, 'Effect must return a Msg' unless follow_msg.is_a?(Msg)
 
         component = component_klass.new(vcr_envelope: env)
         schema = component_klass.vcr_state_schema
         state = schema.build_data(env['data'])
 
-        new_state = component.reduce(state, follow_msg)
-        env['data'] = normalize_state(new_state, schema)
-        new_effects = build_effects(component, schema, env['data'], follow_msg)
-        effects_queue.concat(Array(new_effects))
+        reducer_result = component.reduce(state, follow_msg)
+        reduced_state, reducer_effects = case reducer_result
+                                         in state_only unless reducer_result.is_a?(Array)
+                                           [state_only, []]
+                                         in [state_only]
+                                           [state_only, []]
+                                         in [state_only, *effects]
+                                           [state_only, effects]
+                                         end
+        env['data'] = normalize_state(reduced_state, schema)
+        new_effects = normalize_effects(reducer_effects) + normalize_effects(build_effects(component, schema,
+                                                                                           env['data'], follow_msg))
+        effects_queue.concat(new_effects)
       end
 
       env
@@ -108,6 +127,17 @@ module ViewComponentReducible
 
       state = schema.build_data(state_hash)
       Array(component.effects(state, msg))
+    end
+
+    def normalize_effects(effects)
+      Array(effects).compact
+    end
+
+    def resolve_effect_msg(effect, controller, env)
+      return effect if effect.is_a?(Msg)
+      return effect.call(controller: controller, envelope: env) if effect.respond_to?(:call)
+
+      raise ArgumentError, 'Effect must respond to #call or be a Msg'
     end
 
     def deep_dup(obj)
