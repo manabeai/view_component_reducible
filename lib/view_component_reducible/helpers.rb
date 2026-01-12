@@ -23,7 +23,7 @@ module ViewComponentReducible
     # @return [String]
     def vcr_dispatch_form(state:, msg_type:, msg_payload: {}, target_path: nil, url: '/vcr/dispatch', &block)
       payload = msg_payload.is_a?(String) ? msg_payload : JSON.generate(msg_payload)
-      resolved_target = target_path || instance_variable_get(:@vcr_current_path) || 'root'
+      resolved_target = target_path || vcr_envelope_path || instance_variable_get(:@vcr_current_path) || 'root'
 
       form_tag(url, method: :post, data: { vcr_form: true }) do
         body = [
@@ -72,15 +72,24 @@ module ViewComponentReducible
                   current.replaceWith(newNode);
                 }
                 if (payload.state) {
-                  document.querySelectorAll('input[name="vcr_state"]').forEach(function(input) {
-                    input.value = payload.state;
-                  });
+                  var boundary = document.querySelector('[data-vcr-path="' + targetPath + '"]');
+                  if (boundary) {
+                    boundary.querySelectorAll('input[name="vcr_state"]').forEach(function(input) {
+                      input.value = payload.state;
+                    });
+                  }
                 }
               });
           });
         })();
       JS
       content_tag(:script, js.html_safe)
+    end
+
+    def vcr_envelope_path
+      return unless respond_to?(:vcr_envelope) && vcr_envelope
+
+      vcr_envelope['path']
     end
   end
 end

@@ -2,6 +2,9 @@
 
 class HomeController < ApplicationController
   def index
-    @component = CounterComponent.new
+  end
+
+  def two_counters
+
   end
 end
