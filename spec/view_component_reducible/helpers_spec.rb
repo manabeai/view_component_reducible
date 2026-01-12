@@ -39,11 +39,11 @@ RSpec.describe ViewComponentReducible::Helpers do
   it 'defaults target_path to the current component path' do
     view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
     view.extend(described_class)
-    view.instance_variable_set(:@vcr_current_path, 'root/2')
+    view.instance_variable_set(:@vcr_current_path, 'root/123e4567-e89b-12d3-a456-426614174000')
 
     html = view.vcr_dispatch_form(state: 'token', msg_type: 'Ping') { 'Go' }
 
     expect(html).to include('name="vcr_target_path"')
-    expect(html).to include('value="root/2"')
+    expect(html).to include('value="root/123e4567-e89b-12d3-a456-426614174000"')
   end
 end

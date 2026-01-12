@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'nokogiri'
+require 'securerandom'
 
 module ViewComponentReducible
   # Include to enable the component state DSL and helpers.
@@ -94,10 +95,8 @@ module ViewComponentReducible
       @vcr_envelope = envelope
     end
 
-    def next_root_path(view_context)
-      counter = view_context.instance_variable_get(:@vcr_root_index) || 0
-      view_context.instance_variable_set(:@vcr_root_index, counter + 1)
-      counter.zero? ? 'root' : "root/#{counter}"
+    def next_root_path(_view_context)
+      "root/#{SecureRandom.uuid}"
     end
   end
 end
