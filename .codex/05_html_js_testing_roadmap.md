@@ -1,95 +1,66 @@
 # HTML contract, JS, testing, roadmap
 
 ## Required hidden fields (for dispatch POST)
-Inside the component root (or form):
+`vcr_dispatch_form` が生成する hidden fields:
 - `vcr_state` (signed)
 - `vcr_msg_type`
 - `vcr_msg_payload`
 - `vcr_target_path`
 
-Suggested helper:
-```rb
-# lib/view_component_reducible/helpers.rb
-def vcr_hidden_fields(signed_state:, msg_type:, msg_payload:, target_path:)
-  safe_join([
-    hidden_field_tag("vcr_state", signed_state),
-    hidden_field_tag("vcr_msg_type", msg_type),
-    hidden_field_tag("vcr_msg_payload", msg_payload.to_json),
-    hidden_field_tag("vcr_target_path", target_path),
-  ])
-end
-```
-
 ## DOM targeting (for AJAX replace)
 Each component root should have:
-- `data-vcr-path="root/0/2"`
-- `id="vcr:ComponentId:root/0/2"` (or equivalent)
-- `data-vcr-root="true"` on root
+- `data-vcr-path="root/uuid"`
 
 ## Minimal JS for AJAX (progressive enhancement)
 Goal:
 - Without JS: normal POST works, full page HTML returned
-- With JS: intercept forms marked `data-vcr-remote="true"` and replace a target DOM node with server HTML
+- With JS: intercept forms marked `data-vcr-form` and replace `data-vcr-path` subtree only
 
 Protocol:
-- Client sends `Accept: text/html`
-- Server returns HTML containing `<meta name="vcr-state" content="...">`
-- JS reads meta and updates all `input[name=vcr_state]` within replaced subtree
+- Client sends `X-Requested-With: XMLHttpRequest`
+- Server returns partial HTML and `X-VCR-State` header
+- JS updates only the boundary's `input[name="vcr_state"]`
 
 ```js
-// app/assets/javascripts/view_component_reducible.js
+// lib/view_component_reducible/helpers.rb (vcr_dispatch_script_tag)
 (function () {
-  function getMetaState(doc) {
-    var meta = doc.querySelector('meta[name="vcr-state"]');
-    return meta ? meta.getAttribute("content") : null;
-  }
-
-  function updateStateInputs(rootEl, signedState) {
-    if (!signedState) return;
-    rootEl.querySelectorAll('input[name="vcr_state"]').forEach(function (inp) {
-      inp.value = signedState;
-    });
-  }
-
-  document.addEventListener("submit", function (e) {
-    var form = e.target;
+  document.addEventListener("submit", function (event) {
+    var form = event.target;
     if (!(form instanceof HTMLFormElement)) return;
-    if (form.dataset.vcrRemote !== "true") return;
+    if (!form.matches("[data-vcr-form]")) return;
 
-    e.preventDefault();
-
-    var targetSelector = form.dataset.vcrTarget; // e.g. "#vcr\\:MyRoot\\:root"
-    var targetEl = targetSelector ? document.querySelector(targetSelector) : form.closest("[data-vcr-root='true']");
-    if (!targetEl) targetEl = document.body;
+    event.preventDefault();
+    var formData = new FormData(form);
+    formData.append("vcr_partial", "1");
 
     fetch(form.action, {
-      method: form.method.toUpperCase(),
-      body: new FormData(form),
-      headers: { "Accept": "text/html" },
-      credentials: "same-origin"
+      method: (form.method || "POST").toUpperCase(),
+      body: formData,
+      headers: { "X-Requested-With": "XMLHttpRequest" }
     })
-      .then(function (res) { return res.text(); })
-      .then(function (html) {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(html, "text/html");
-        var signedState = getMetaState(doc);
-
-        // Replace strategy:
-        // - if server renders full page, try to pick matching target by id
-        // - else fallback to body
-        var incoming = null;
-        if (targetEl.id) incoming = doc.getElementById(targetEl.id);
-        if (!incoming) incoming = doc.body;
-
-        targetEl.outerHTML = incoming.outerHTML;
-
-        // after replacement: update state inputs in the new subtree
-        var newTarget = document.getElementById(incoming.id) || document.querySelector("[data-vcr-root='true']") || document.body;
-        updateStateInputs(newTarget, signedState);
+      .then(function (response) {
+        var state = response.headers.get("X-VCR-State");
+        return response.text().then(function (html) {
+          return { html: html, state: state };
+        });
       })
-      .catch(function (err) {
-        console.error("[vcr] remote submit failed", err);
-        form.submit(); // graceful fallback
+      .then(function (payload) {
+        var targetPath = formData.get("vcr_target_path");
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(payload.html, "text/html");
+        var newNode = doc.querySelector('[data-vcr-path="' + targetPath + '"]') || doc.body.firstElementChild;
+        var current = document.querySelector('[data-vcr-path="' + targetPath + '"]');
+        if (newNode && current) {
+          current.replaceWith(newNode);
+        }
+        if (payload.state) {
+          var boundary = document.querySelector('[data-vcr-path="' + targetPath + '"]');
+          if (boundary) {
+            boundary.querySelectorAll('input[name="vcr_state"]').forEach(function (input) {
+              input.value = payload.state;
+            });
+          }
+        }
       });
   });
 })();
@@ -141,10 +112,9 @@ class CounterComponent < ViewComponentReducible::Component
     # render buttons as forms posting to /vcr/dispatch
     # (helper usage omitted)
     <<~HTML.html_safe
-      <div data-vcr-root="true" data-vcr-path="#{@vcr_envelope["path"]}" id="#{vcr_dom_id(path: @vcr_envelope["path"])}">
+      <div data-vcr-path="#{@vcr_envelope["path"]}">
         <p>#{count}</p>
-
-        <form action="/vcr/dispatch" method="post" data-vcr-remote="true" data-vcr-target="##{css_escape(vcr_dom_id(path: @vcr_envelope["path"]))}">
+        <form action="/vcr/dispatch" method="post" data-vcr-form="true">
           <input type="hidden" name="vcr_state" value="">
           <input type="hidden" name="vcr_msg_type" value="Inc">
           <input type="hidden" name="vcr_msg_payload" value="{}">
@@ -154,10 +124,6 @@ class CounterComponent < ViewComponentReducible::Component
       </div>
     HTML
   end
-
-  private
-
-  def css_escape(id) = id.gsub(":", "\\:")
 end
 ```
 
@@ -179,6 +145,11 @@ expect(response).to have_http_status(:ok)
 expect(response.body).to include(">1<")
 ```
 
+## Testing (E2E with Playwright)
+- Dummy app lives in `spec/dummy/`.
+- Playwright tests live in `spec/e2e/`.
+- Run: `npm install` then `npx playwright install` and `npm run test:e2e`.
+
 ## Implementation milestones
 v0.1 (this spec):
 - HiddenField adapter signing
@@ -196,4 +167,3 @@ v0.3:
 - Better schema typing/coercion
 - Stable child identity + keyed collections
 - Effect helpers (db fetch, validation, navigation)
-

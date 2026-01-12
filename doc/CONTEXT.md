@@ -28,10 +28,10 @@
 
 ## ルーティング/アダプタ
 - Engineで `/dispatch`
-- dummy は `POST /vcr/dispatch` を直接定義
-- HiddenField adapter を dummy で利用
+- spec/dummy は `POST /vcr/dispatch` を直接定義
+- HiddenField adapter を spec/dummy で利用
 
-## ダミーアプリ（dummy/）
+## ダミーアプリ（spec/dummy/）
 - `MyFormComponent` は `count`/`last_updated_at` を持つ
 - `Increment/Decrement/Reset/UpdatedAt` を reducer で処理
 - コンポーネント境界は自動で `data-vcr-path` を付与

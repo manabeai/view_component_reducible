@@ -1,0 +1,10 @@
+{
+  "name": "view_component_reducible",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "^1.49.1"
+  },
+  "scripts": {
+    "test:e2e": "playwright test"
+  }
+}

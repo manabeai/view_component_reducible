@@ -13,3 +13,7 @@ development.sqlite3
 
 /.vscode/
 view_component_reducible-*
+playwright-report/
+test-results/
+
+*.key
