@@ -1,7 +1,8 @@
 <section class="mx-auto max-w-5xl px-6 py-12">
-  <div class="rounded-3xl border border-amber-200 bg-white p-8 shadow-xl">
-    <h1 class="text-3xl font-semibold tracking-tight">Booking Flow</h1>
-    <p class="mt-2 text-sm text-amber-700">Select a day, then a time, then a staff member.</p>
+  <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
+    <div class="rounded-3xl border border-amber-200 bg-white p-8 shadow-xl lg:flex-1">
+      <h1 class="text-3xl font-semibold tracking-tight">Booking Flow</h1>
+      <p class="mt-2 text-sm text-amber-700">Select a day, then a time, then a staff member.</p>
 
     <div class="mt-10">
       <h2 class="text-xs uppercase tracking-widest text-amber-700">Calendar</h2>
@@ -23,51 +24,78 @@
       </div>
     </div>
 
-    <% if vcr_state["selected_day"] %>
-      <div class="mt-10">
-        <h2 class="text-xs uppercase tracking-widest text-amber-700">Available Times</h2>
-        <p class="mt-1 text-sm text-slate-600">Day <%= vcr_state["selected_day"] %></p>
-        <div class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
-          <% (9..18).each do |hour| %>
-            <% time_label = format("%02d:00", hour) %>
-            <%= helpers.vcr_dispatch_form(
-              state: vcr_state_token,
-              msg_type: "SelectTime",
-              msg_payload: { time: time_label }
-            ) do %>
-              <button
-                type="submit"
-                data-testid="time-<%= time_label %>"
-                class="rounded-xl border px-4 py-3 text-sm font-semibold <%= vcr_state["selected_time"] == time_label ? "border-amber-500 bg-white text-amber-800 shadow" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300" %>">
-                <%= time_label %>
-              </button>
+      <% if vcr_state["selected_day"] %>
+        <div class="mt-10">
+          <h2 class="text-xs uppercase tracking-widest text-amber-700">Available Times</h2>
+          <p class="mt-1 text-sm text-slate-600">Day <%= vcr_state["selected_day"] %></p>
+          <div class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
+            <% Array(vcr_state["available_times"]).each do |time_label| %>
+              <%= helpers.vcr_dispatch_form(
+                state: vcr_state_token,
+                msg_type: "SelectTime",
+                msg_payload: { time: time_label }
+              ) do %>
+                <button
+                  type="submit"
+                  data-testid="time-<%= time_label %>"
+                  class="rounded-xl border px-4 py-3 text-sm font-semibold <%= vcr_state["selected_time"] == time_label ? "border-amber-500 bg-white text-amber-800 shadow" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300" %>">
+                  <%= time_label %>
+                </button>
+              <% end %>
             <% end %>
-          <% end %>
+          </div>
         </div>
-      </div>
-    <% end %>
+      <% end %>
 
-    <% if vcr_state["selected_time"] %>
-      <div class="mt-10" data-testid="staff-list">
-        <h2 class="text-xs uppercase tracking-widest text-amber-700">Available Staff</h2>
-        <p class="mt-1 text-sm text-slate-600">Time <%= vcr_state["selected_time"] %></p>
-        <div class="mt-4 grid gap-3 sm:grid-cols-3">
-          <% staff_options.each do |staff| %>
-            <%= helpers.vcr_dispatch_form(
-              state: vcr_state_token,
-              msg_type: "SelectStaff",
-              msg_payload: { staff: staff }
-            ) do %>
-              <button
-                type="submit"
-                data-testid="staff-<%= staff.downcase %>"
-                class="rounded-xl border px-4 py-3 text-sm font-semibold <%= vcr_state["selected_staff"] == staff ? "border-amber-500 bg-amber-50 text-amber-800" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300" %>">
-                <%= staff %>
-              </button>
+      <% if vcr_state["selected_time"] %>
+        <div class="mt-10" data-testid="staff-list">
+          <h2 class="text-xs uppercase tracking-widest text-amber-700">Available Staff</h2>
+          <p class="mt-1 text-sm text-slate-600">Time <%= vcr_state["selected_time"] %></p>
+          <div class="mt-4 grid gap-3 sm:grid-cols-3">
+            <% Array(vcr_state["available_staff"]).each do |staff| %>
+              <%= helpers.vcr_dispatch_form(
+                state: vcr_state_token,
+                msg_type: "SelectStaff",
+                msg_payload: { staff: staff }
+              ) do %>
+                <button
+                  type="submit"
+                  data-testid="staff-<%= staff.downcase %>"
+                  aria-pressed="<%= vcr_state["selected_staff"] == staff %>"
+                  class="rounded-xl border px-4 py-3 text-sm font-semibold <%= vcr_state["selected_staff"] == staff ? "border-amber-500 bg-amber-50 text-amber-800" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300" %>">
+                  <%= staff %>
+                </button>
+              <% end %>
             <% end %>
+          </div>
+          <% if vcr_state["selected_staff"] %>
+            <button
+              type="button"
+              data-testid="booking-button"
+              class="ml-auto mt-4 block rounded-full bg-amber-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-amber-500">
+              Book this time
+            </button>
           <% end %>
         </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
+
+    <aside class="rounded-3xl border border-amber-200 bg-white p-6 shadow-lg lg:w-72">
+      <h2 class="text-sm font-semibold tracking-wide text-amber-700">Selected</h2>
+      <dl class="mt-4 space-y-3 text-sm text-slate-700">
+        <div class="flex items-center justify-between">
+          <dt class="font-medium text-slate-500">Day</dt>
+          <dd class="font-semibold"><%= vcr_state["selected_day"] || "-" %></dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="font-medium text-slate-500">Time</dt>
+          <dd class="font-semibold"><%= vcr_state["selected_time"] || "-" %></dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="font-medium text-slate-500">Staff</dt>
+          <dd class="font-semibold"><%= vcr_state["selected_staff"] || "-" %></dd>
+        </div>
+      </dl>
+    </aside>
   </div>
 </section>
