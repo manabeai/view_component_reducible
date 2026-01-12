@@ -8,6 +8,10 @@ module ViewComponentReducible
   module Adapter
     # Session adapter storing envelope in server session.
     class Session < Base
+      def self.state_param_name
+        'vcr_state_key'
+      end
+
       # @return [ActiveSupport::MessageVerifier]
       def verifier
         @verifier ||= ActiveSupport::MessageVerifier.new(@secret, digest: 'SHA256', serializer: JSON)
@@ -28,7 +32,7 @@ module ViewComponentReducible
       # @param request [ActionDispatch::Request]
       # @return [Hash]
       def load(request:)
-        signed = request.params.fetch('vcr_state')
+        signed = request.params.fetch(self.class.state_param_name)
         payload = verifier.verify(signed)
         key = payload.fetch('k')
         request.session.fetch("vcr:#{key}")

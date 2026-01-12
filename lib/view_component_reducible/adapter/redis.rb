@@ -12,6 +12,10 @@ module ViewComponentReducible
       DEFAULT_TTL = 900
       DEFAULT_NAMESPACE = 'vcr'
 
+      def self.state_param_name
+        'vcr_state_key'
+      end
+
       # @param secret [String]
       # @param redis [Object, nil]
       # @param redis_url [String, nil]
@@ -42,7 +46,7 @@ module ViewComponentReducible
       # @param request [ActionDispatch::Request]
       # @return [Hash]
       def load(request:)
-        signed = request.params.fetch('vcr_state')
+        signed = request.params.fetch(self.class.state_param_name)
         payload = verifier.verify(signed)
         key = payload.fetch('k')
         raw = @redis.get(redis_key(key))

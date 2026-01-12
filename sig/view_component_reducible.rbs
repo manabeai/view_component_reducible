@@ -39,6 +39,7 @@ module ViewComponentReducible
 
   module Adapter
     class Base
+      def self.state_param_name: () -> String
       def initialize: (secret: String, **untyped) -> void
       def dump: (Hash[untyped, untyped] envelope, request: ActionDispatch::Request) -> String
       def load: (request: ActionDispatch::Request) -> Hash[untyped, untyped]
