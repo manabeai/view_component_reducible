@@ -39,3 +39,14 @@ test('two counters update independently', async ({ page }) => {
   await expect(firstCount).toHaveText('0');
   await expect(secondCount).toHaveText('1');
 });
+
+test('booking flow reveals times and staff', async ({ page }) => {
+  await page.goto('/effects');
+
+  await page.getByTestId('day-15').click();
+  await expect(page.getByTestId('time-10:00')).toBeVisible();
+
+  await page.getByTestId('time-10:00').click();
+  await expect(page.getByTestId('staff-list')).toBeVisible();
+  await expect(page.getByTestId('staff-aki')).toBeVisible();
+});

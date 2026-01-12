@@ -7,5 +7,7 @@ end
 
 Rails.application.config.to_prepare do
   require_dependency "counter_component"
+  require_dependency "booking_component"
   ViewComponentReducible.register(CounterComponent)
+  ViewComponentReducible.register(BookingComponent)
 end
