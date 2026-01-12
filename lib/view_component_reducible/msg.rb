@@ -20,17 +20,59 @@ module ViewComponentReducible
       type = params.fetch('vcr_msg_type')
       payload_json = params['vcr_msg_payload']
       payload = payload_json && payload_json != '' ? JSON.parse(payload_json) : {}
-      new(type:, payload:)
+      build(type:, payload:)
     end
 
-    private
+    # Build a Msg with a normalized payload object.
+    # @param type [String, Symbol]
+    # @param payload [Object, nil]
+    # @return [ViewComponentReducible::Msg]
+    def self.build(type:, payload: nil)
+      return new(type:, payload:) if payload.is_a?(Data)
 
-    def normalized_type
+      normalized = normalize_type(type)
+      new(type:, payload: self::Payload.from_hash(normalized, payload))
+    end
+
+    # @param type [String, Symbol]
+    # @return [Symbol]
+    def self.normalize_type(type)
       type.to_s
           .gsub(/([a-z\d])([A-Z])/, '\1_\2')
           .tr('-', '_')
           .downcase
           .to_sym
+    end
+
+    private
+
+    def normalized_type
+      self.class.normalize_type(type)
+    end
+  end
+
+  class Msg
+    module Payload
+      Empty = Data.define
+      Value = Data.define(:value)
+
+      def self.from_hash(_type, payload)
+        payload_hash = payload.is_a?(Hash) ? payload.transform_keys(&:to_s) : nil
+
+        return Empty.new if payload.nil? || (payload.respond_to?(:empty?) && payload.empty?)
+        return Value.new(value: payload) unless payload_hash
+
+        build_generic(payload_hash)
+      end
+
+      def self.build_generic(payload_hash)
+        return Empty.new if payload_hash.empty?
+
+        keys = payload_hash.keys.map(&:to_sym)
+        klass = Data.define(*keys)
+        values = keys.to_h { |key| [key, payload_hash[key.to_s]] }
+        klass.new(**values)
+      end
     end
   end
 end

@@ -10,22 +10,22 @@ RSpec.describe ViewComponentReducible::Msg do
     msg = described_class.from_params(params)
 
     expect(msg.type).to eq('ClickedSave')
-    expect(msg.payload).to eq({ 'id' => 123 })
+    expect(msg.payload.id).to eq(123)
   end
 
-  it 'defaults payload to empty hash' do
+  it 'defaults payload to an empty payload object' do
     params = { 'vcr_msg_type' => 'Ping', 'vcr_msg_payload' => '' }
 
     msg = described_class.from_params(params)
 
-    expect(msg.payload).to eq({})
+    expect(msg.payload.to_h).to eq({})
   end
 
   it 'supports pattern matching with symbol types' do
-    msg = described_class.new(type: 'Increment', payload: { step: 2 })
+    msg = described_class.build(type: 'SelectDay', payload: { day: 2 })
 
     matched = case msg
-              in { type: :increment, payload: { step: 2 } }
+              in { type: :select_day, payload: { day: 2 } }
                 true
               else
                 false

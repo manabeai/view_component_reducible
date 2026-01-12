@@ -28,7 +28,7 @@ RSpec.describe ViewComponentReducible::Runtime do
           [state.with(count: state.count + 1)]
         in { type: :inc_effect }
           effect = lambda do |**_kwargs|
-            ViewComponentReducible::Msg.new(type: 'Inc', payload: { 'source' => 'effect' })
+            ViewComponentReducible::Msg.build(type: 'Inc', payload: { source: 'effect' })
           end
           [state.with(count: state.count + 1), effect]
         else
@@ -58,7 +58,7 @@ RSpec.describe ViewComponentReducible::Runtime do
   end
 
   it 'accepts a reducer that returns only state' do
-    msg = ViewComponentReducible::Msg.new(type: 'Inc', payload: {})
+    msg = ViewComponentReducible::Msg.build(type: 'Inc', payload: {})
 
     new_env, _html = described_class.new.call(
       envelope:,
@@ -71,7 +71,7 @@ RSpec.describe ViewComponentReducible::Runtime do
   end
 
   it 'accepts a reducer that returns [state]' do
-    msg = ViewComponentReducible::Msg.new(type: 'IncArray', payload: {})
+    msg = ViewComponentReducible::Msg.build(type: 'IncArray', payload: {})
 
     new_env, _html = described_class.new.call(
       envelope:,
@@ -84,7 +84,7 @@ RSpec.describe ViewComponentReducible::Runtime do
   end
 
   it 'accepts a reducer that returns [state, effects...]' do
-    msg = ViewComponentReducible::Msg.new(type: 'IncEffect', payload: {})
+    msg = ViewComponentReducible::Msg.build(type: 'IncEffect', payload: {})
 
     new_env, _html = described_class.new.call(
       envelope:,

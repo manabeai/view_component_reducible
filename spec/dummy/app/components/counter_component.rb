@@ -12,9 +12,9 @@ class CounterComponent < ViewComponent::Base
     case msg
     in { type: :increment }
       state.with(count: state.count + 1, last_updated_at: Time.current)
-    in { type: :decrement }
+    in { type: :decrement, payload: _payload }
       state.with(count: [ state.count - 1, 0 ].max, last_updated_at: Time.current)
-    in { type: :reset }
+    in { type: :reset, payload: _payload }
       state.with_defaults
     end
   end

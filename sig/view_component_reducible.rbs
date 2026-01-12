@@ -12,7 +12,12 @@ module ViewComponentReducible
     def adapter_for: (ActionController::Base controller, ?adapter_class: Class) -> Adapter::Base
   end
 
-  Msg: Struct
+  class Msg < Struct
+    attr_accessor type: (String | Symbol)
+    attr_accessor payload: untyped
+    def self.from_params: (Hash[untyped, untyped] params) -> Msg
+    def self.build: (type: String | Symbol, ?payload: untyped) -> Msg
+  end
   module Component
     def self.included: (untyped base) -> void
     def vcr_envelope: () -> Hash[untyped, untyped]?
