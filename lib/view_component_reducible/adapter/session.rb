@@ -18,7 +18,10 @@ module ViewComponentReducible
       # @return [String]
       def dump(envelope, request:)
         key = SecureRandom.hex(16)
-        request.session["vcr:#{key}"] = envelope
+        session = request.session
+        session_keys = session.respond_to?(:keys) ? session.keys : session.to_hash.keys
+        session_keys.grep(/\Avcr:/).each { |session_key| session.delete(session_key) }
+        session["vcr:#{key}"] = envelope
         verifier.generate({ 'k' => key })
       end
 

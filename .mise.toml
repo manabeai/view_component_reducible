@@ -28,4 +28,12 @@ run = "cd spec/dummy && RAILS_ENV=development bin/rails server -b 127.0.0.1 -p 3
 
 [tasks."servers:up"]
 description = "Start Redis and dummy Rails server"
-run = "redis-server --daemonize yes && cd spec/dummy && RAILS_ENV=development bin/rails server -b 127.0.0.1 -p 3000"
+run = "redis-server --daemonize yes && cd spec/dummy && VCR_ADAPTER=redis RAILS_ENV=development bin/rails server -b 127.0.0.1 -p 3000"
+
+[tasks."servers:up:session"]
+description = "Start Redis and dummy Rails server (session adapter)"
+run = "redis-server --daemonize yes && cd spec/dummy && VCR_ADAPTER=session RAILS_ENV=development bin/rails server -b 127.0.0.1 -p 3000"
+
+[tasks."servers:up:hidden_field"]
+description = "Start Redis and dummy Rails server (hidden field adapter)"
+run = "redis-server --daemonize yes && cd spec/dummy && VCR_ADAPTER=hidden_field RAILS_ENV=development bin/rails server -b 127.0.0.1 -p 3000"
