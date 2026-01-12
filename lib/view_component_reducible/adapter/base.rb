@@ -5,7 +5,8 @@ module ViewComponentReducible
     # Base adapter interface for envelope serialization.
     class Base
       # @param secret [String]
-      def initialize(secret:)
+      # @param _kwargs [Hash]
+      def initialize(secret:, **_kwargs)
         @secret = secret
       end
 

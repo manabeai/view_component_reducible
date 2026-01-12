@@ -8,6 +8,10 @@ module ViewComponentReducible
   class Configuration
     attr_accessor adapter: Class
     attr_accessor secret: String?
+    attr_accessor redis: untyped
+    attr_accessor redis_url: String?
+    attr_accessor redis_ttl: Integer?
+    attr_accessor redis_namespace: String?
     def initialize: () -> void
     def adapter_for: (ActionController::Base controller, ?adapter_class: Class) -> Adapter::Base
   end
@@ -35,7 +39,7 @@ module ViewComponentReducible
 
   module Adapter
     class Base
-      def initialize: (secret: String) -> void
+      def initialize: (secret: String, **untyped) -> void
       def dump: (Hash[untyped, untyped] envelope, request: ActionDispatch::Request) -> String
       def load: (request: ActionDispatch::Request) -> Hash[untyped, untyped]
     end
@@ -46,6 +50,12 @@ module ViewComponentReducible
     end
 
     class Session < Base
+      def verifier: () -> ActiveSupport::MessageVerifier
+    end
+
+    class Redis < Base
+      DEFAULT_TTL: Integer
+      DEFAULT_NAMESPACE: String
       def verifier: () -> ActiveSupport::MessageVerifier
     end
   end

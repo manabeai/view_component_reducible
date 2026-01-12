@@ -1,10 +1,10 @@
 [tasks.test]
 description = "Run RSpec"
-run = "bundle exec rspec && npm run test:e2e"
+run = "bundle exec rspec && redis-server --daemonize yes && npm run test:e2e"
 
 [tasks."test:e2e"]
 description = "Run Playwright E2E"
-run = "npm run test:e2e"
+run = "redis-server --daemonize yes && npm run test:e2e"
 
 [tasks."test:spec"]
 description = "Run RSpec and Playwright E2E"
@@ -16,4 +16,16 @@ run = "bundle exec rubocop -A"
 
 [tasks.all]
 description = "Run RSpec, Playwright E2E, and Rubocop"
-run = "bundle exec rspec && npm run test:e2e && rubocop -A"
+run = "bundle exec rspec && redis-server --daemonize yes && npm run test:e2e && rubocop -A"
+
+[tasks."servers:redis"]
+description = "Start Redis server"
+run = "redis-server --daemonize yes"
+
+[tasks."servers:rails"]
+description = "Start dummy Rails server"
+run = "cd spec/dummy && RAILS_ENV=development bin/rails server -b 127.0.0.1 -p 3000"
+
+[tasks."servers:up"]
+description = "Start Redis and dummy Rails server"
+run = "redis-server --daemonize yes && cd spec/dummy && RAILS_ENV=development bin/rails server -b 127.0.0.1 -p 3000"

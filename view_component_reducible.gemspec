@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activesupport', '>= 6.1'
   spec.add_dependency 'nokogiri', '>= 1.14'
   spec.add_dependency 'railties', '>= 6.1'
+  spec.add_dependency 'redis', '>= 4.0'
   spec.add_dependency 'view_component', '>= 2.0'
 
   # For more information and examples about making a new gem, check out our
