@@ -21,14 +21,12 @@ class BookingComponent < ViewComponent::Base
     case msg
     in { type: :select_day, payload: payload }
       day = payload['day'] || payload[:day]
-      base_times = ["10:00", "14:00"]
       effect = build_times_effect(day.to_i)
-      [state.with(selected_day: day.to_i, selected_time: nil, selected_staff: nil, available_times: base_times, available_staff: []), effect]
+      [state.with(selected_day: day.to_i, selected_time: nil, selected_staff: nil, available_times: BookingMockData.base_times, available_staff: []), effect]
     in { type: :select_time, payload: payload }
       time = payload['time'] || payload[:time]
-      base_staff = ["Aki"]
       effect = build_staff_effect(time.to_s)
-      [state.with(selected_time: time, selected_staff: nil, available_staff: base_staff), effect]
+      [state.with(selected_time: time, selected_staff: nil, available_staff: BookingMockData.base_staff), effect]
     in { type: :times_loaded, payload: payload }
       times = payload['times'] || payload[:times] || []
       state.with(available_times: times)
