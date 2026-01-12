@@ -17,19 +17,20 @@ module ViewComponentReducible
     # @param state [String] signed state token
     # @param msg_type [String]
     # @param msg_payload [Hash, String]
-    # @param target_path [String]
+    # @param target_path [String, nil]
     # @param url [String]
     # @yield block for the form body (e.g., submit button)
     # @return [String]
-    def vcr_dispatch_form(state:, msg_type:, msg_payload: {}, target_path: 'root', url: '/vcr/dispatch', &block)
+    def vcr_dispatch_form(state:, msg_type:, msg_payload: {}, target_path: nil, url: '/vcr/dispatch', &block)
       payload = msg_payload.is_a?(String) ? msg_payload : JSON.generate(msg_payload)
+      resolved_target = target_path || instance_variable_get(:@vcr_current_path) || 'root'
 
       form_tag(url, method: :post, data: { vcr_form: true }) do
         body = [
           hidden_field_tag('vcr_state', state),
           hidden_field_tag('vcr_msg_type', msg_type),
           hidden_field_tag('vcr_msg_payload', payload),
-          hidden_field_tag('vcr_target_path', target_path),
+          hidden_field_tag('vcr_target_path', resolved_target),
           (block_given? ? capture(&block) : '')
         ]
         safe_join(body)

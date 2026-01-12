@@ -50,11 +50,16 @@ module ViewComponentReducible
     def render_in(view_context, &block)
       ensure_vcr_state(view_context) if vcr_envelope.nil?
 
-      rendered = super
       path = vcr_envelope && vcr_envelope['path']
+      previous_path = view_context.instance_variable_get(:@vcr_current_path)
+      view_context.instance_variable_set(:@vcr_current_path, path)
+
+      rendered = super
       return rendered if path.nil? || path.to_s.empty?
 
       inject_vcr_path(rendered, path)
+    ensure
+      view_context.instance_variable_set(:@vcr_current_path, previous_path)
     end
 
     module ClassMethods
@@ -83,10 +88,16 @@ module ViewComponentReducible
       controller = view_context.controller
       return unless controller.respond_to?(:request)
 
-      envelope = State::Envelope.initial(self.class)
+      envelope = State::Envelope.initial(self.class, path: next_root_path(view_context))
       adapter = ViewComponentReducible.config.adapter_for(controller)
       @vcr_state_token = adapter.dump(envelope, request: controller.request)
       @vcr_envelope = envelope
+    end
+
+    def next_root_path(view_context)
+      counter = view_context.instance_variable_get(:@vcr_root_index) || 0
+      view_context.instance_variable_set(:@vcr_root_index, counter + 1)
+      counter.zero? ? 'root' : "root/#{counter}"
     end
   end
 end
