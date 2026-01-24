@@ -23,7 +23,7 @@
 - `ViewComponentReducible::DispatchController#call`
 - `ViewComponentReducible::Helpers`
   - `vcr_boundary(path:)`
-  - `vcr_dispatch_form(...)`
+  - `vcr_button_to(...)`
   - `vcr_dispatch_script_tag`
 
 ## ルーティング/アダプタ

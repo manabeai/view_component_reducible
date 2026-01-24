@@ -13,7 +13,7 @@ module ViewComponentReducible
       content_tag(:div, capture(&block), data: { vcr_path: path })
     end
 
-    # Build a dispatch form with hidden fields for the VCR endpoint.
+    # Build a dispatch button form with hidden fields for the VCR endpoint.
     # @param state [String, nil] signed state token (defaults to current component token)
     # @param msg_type [String]
     # @param msg_payload [Hash, String]
@@ -21,7 +21,7 @@ module ViewComponentReducible
     # @param url [String]
     # @yield block for the form body (e.g., submit button)
     # @return [String]
-    def vcr_dispatch_form(msg_type:, state: nil, msg_payload: {}, target_path: nil, url: '/vcr/dispatch', &block)
+    def vcr_button_to(msg_type:, state: nil, msg_payload: {}, target_path: nil, url: '/vcr/dispatch', &block)
       payload = msg_payload.is_a?(String) ? msg_payload : JSON.generate(msg_payload)
       resolved_state = state || instance_variable_get(:@vcr_state_token)
       resolved_target = target_path || vcr_envelope_path || instance_variable_get(:@vcr_current_path) || 'root'
@@ -93,6 +93,12 @@ module ViewComponentReducible
         })();
       JS
       content_tag(:script, js.html_safe)
+    end
+
+    # Backward compatibility alias.
+    # @deprecated Use vcr_button_to instead.
+    def vcr_dispatch_form(...)
+      vcr_button_to(...)
     end
 
     def vcr_envelope_path

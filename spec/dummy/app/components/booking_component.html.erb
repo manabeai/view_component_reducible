@@ -8,7 +8,7 @@
       <h2 class="text-xs uppercase tracking-widest text-amber-700">Calendar</h2>
       <div class="mt-4 grid grid-cols-7 gap-2 text-center">
         <% (1..30).each do |day| %>
-          <%= helpers.vcr_dispatch_form(
+          <%= vcr_button_to(
             state: vcr_state_token,
             msg_type: "SelectDay",
             msg_payload: { day: day }
@@ -30,7 +30,7 @@
           <p class="mt-1 text-sm text-slate-600">Day <%= vcr_state["selected_day"] %></p>
           <div class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
             <% Array(vcr_state["available_times"]).each do |time_label| %>
-              <%= helpers.vcr_dispatch_form(
+              <%= vcr_button_to(
                 state: vcr_state_token,
                 msg_type: "SelectTime",
                 msg_payload: { time: time_label }
@@ -53,7 +53,7 @@
           <p class="mt-1 text-sm text-slate-600">Time <%= vcr_state["selected_time"] %></p>
           <div class="mt-4 grid gap-3 sm:grid-cols-3">
             <% Array(vcr_state["available_staff"]).each do |staff| %>
-              <%= helpers.vcr_dispatch_form(
+              <%= vcr_button_to(
                 state: vcr_state_token,
                 msg_type: "SelectStaff",
                 msg_payload: { staff: staff }

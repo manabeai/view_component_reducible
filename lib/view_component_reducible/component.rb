@@ -45,6 +45,18 @@ module ViewComponentReducible
       "vcr:#{self.class.vcr_id}:#{path}"
     end
 
+    # Build a dispatch button form from the component context.
+    # @return [String]
+    def vcr_button_to(...)
+      helpers.vcr_button_to(...)
+    end
+
+    # Backward compatibility helper for dispatch forms.
+    # @return [String]
+    def vcr_dispatch_form(...)
+      helpers.vcr_dispatch_form(...)
+    end
+
     # Render component markup wrapped in a VCR boundary when available.
     # @param view_context [ActionView::Base]
     # @return [String]

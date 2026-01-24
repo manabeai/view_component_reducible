@@ -7,7 +7,7 @@ RSpec.describe ViewComponentReducible::Helpers do
     view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
     view.extend(described_class)
 
-    html = view.vcr_dispatch_form(
+    html = view.vcr_button_to(
       state: 'token',
       msg_type: 'Ping',
       msg_payload: { 'id' => 1 },
@@ -41,7 +41,7 @@ RSpec.describe ViewComponentReducible::Helpers do
     view.extend(described_class)
     view.instance_variable_set(:@vcr_current_path, 'root/123e4567-e89b-12d3-a456-426614174000')
 
-    html = view.vcr_dispatch_form(state: 'token', msg_type: 'Ping') { 'Go' }
+    html = view.vcr_button_to(state: 'token', msg_type: 'Ping') { 'Go' }
 
     expect(html).to include('name="vcr_target_path"')
     expect(html).to include('value="root/123e4567-e89b-12d3-a456-426614174000"')
@@ -52,7 +52,7 @@ RSpec.describe ViewComponentReducible::Helpers do
     view.extend(described_class)
     view.instance_variable_set(:@vcr_state_token, 'token')
 
-    html = view.vcr_dispatch_form(msg_type: 'Ping') { 'Go' }
+    html = view.vcr_button_to(msg_type: 'Ping') { 'Go' }
 
     expect(html).to include(%(name="#{ViewComponentReducible.config.adapter.state_param_name}"))
     expect(html).to include('value="token"')
@@ -64,7 +64,7 @@ RSpec.describe ViewComponentReducible::Helpers do
     view.instance_variable_set(:@vcr_current_path, 'root/legacy')
     view.define_singleton_method(:vcr_envelope) { { 'path' => 'root/envelope' } }
 
-    html = view.vcr_dispatch_form(state: 'token', msg_type: 'Ping') { 'Go' }
+    html = view.vcr_button_to(state: 'token', msg_type: 'Ping') { 'Go' }
 
     expect(html).to include('name="vcr_target_path"')
     expect(html).to include('value="root/envelope"')

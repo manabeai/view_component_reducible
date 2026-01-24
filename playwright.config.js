@@ -4,13 +4,13 @@ module.exports = defineConfig({
   testDir: './spec/e2e',
   timeout: 60_000,
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3001',
     headless: true
   },
   webServer: {
-    command: 'sh -c "redis-server --daemonize yes || true; RAILS_ENV=test bin/rails server -b 127.0.0.1 -p 3000"',
+    command: 'sh -c "redis-server --daemonize yes || true; RAILS_ENV=test bin/rails server -b 127.0.0.1 -p 3001"',
     cwd: 'spec/dummy',
-    url: 'http://127.0.0.1:3000',
-    reuseExistingServer: !process.env.CI
+    url: 'http://127.0.0.1:3001',
+    reuseExistingServer: true
   }
 });
