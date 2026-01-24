@@ -67,6 +67,53 @@ module ViewComponentReducible
       vcr_button_to(...)
     end
 
+    # Build a live input that dispatches on input events.
+    # @param name [String, Symbol]
+    # @param type [String, Symbol]
+    # @param value [String, nil]
+    # @param placeholder [String, nil]
+    # @return [String]
+    def vcr_live_input(name, type:, value: nil, placeholder: nil)
+      resolved_state = instance_variable_get(:@vcr_state_token)
+      resolved_target = vcr_envelope_path || instance_variable_get(:@vcr_current_path) || 'root'
+      component_context = instance_variable_defined?(:@vcr_current_path) || !vcr_envelope_path.nil?
+      if resolved_state.nil? && !component_context
+        raise ArgumentError, 'vcr_state is missing. Render inside a component.'
+      end
+
+      resolved_state = '' if resolved_state.nil?
+      state_param = ViewComponentReducible.config.adapter.state_param_name
+      payload_key = name.to_s
+      payload = JSON.generate({ payload_key => value.to_s })
+      input_id = "vcr-live-input-#{payload_key}"
+      url = '/vcr/dispatch'
+
+      form_tag(url, method: :post, data: { vcr_form: true, vcr_live: true, vcr_state_param: state_param }) do
+        body = [
+          hidden_field_tag(state_param, resolved_state),
+          hidden_field_tag('vcr_msg_type', type),
+          hidden_field_tag('vcr_msg_payload', payload, data: { vcr_payload_key: payload_key }),
+          hidden_field_tag('vcr_target_path', resolved_target),
+          tag(:input, {
+            type: 'text',
+            name: payload_key,
+            value: value,
+            placeholder: placeholder,
+            id: input_id,
+            data: { vcr_live_input: true },
+            class: 'vcr-live-input'
+          }),
+          content_tag(:button, '', {
+            type: 'submit',
+            aria: { hidden: true },
+            data: { vcr_live_submit: true, vcr_source: 'live_input' },
+            style: 'display:none'
+          })
+        ]
+        safe_join(body)
+      end
+    end
+
     def vcr_envelope_path
       return unless respond_to?(:vcr_envelope) && vcr_envelope
 
