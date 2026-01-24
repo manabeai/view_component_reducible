@@ -1,5 +1,7 @@
 # view_component_reducible
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/manabeai/view_component_reducible)
+
 ![sample](doc/img/sample.png)
 
 This sample shows state transitions and partial updates powered entirely by ViewComponent.

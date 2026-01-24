@@ -3,6 +3,15 @@
 class BookingComponent < ViewComponent::Base
   include ViewComponentReducible::Component
 
+  # BookingMockData returns:
+  # - calendar_days: Array<Hash> (day, date, weekday, status, year, month)
+  # - calendar_day_records: Array<BookingMockData::Day>
+  #   - BookingMockData::Day fields: day, date, weekday, status, year, month
+  # - base_times: Array<String>
+  # - base_staff: Array<String>
+  # - available_times: Array<String>
+  # - available_staff: Array<String>
+  # - STAFF_OPTIONS: Array<String>
   CALENDAR_STATUS = {
     "circle" => ["◯", "rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700"],
     "triangle" => ["△", "rounded-full bg-yellow-100 px-2 py-0.5 text-yellow-700"],
