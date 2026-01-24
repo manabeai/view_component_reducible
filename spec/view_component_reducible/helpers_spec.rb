@@ -8,11 +8,12 @@ RSpec.describe ViewComponentReducible::Helpers do
     view.extend(described_class)
 
     html = view.vcr_button_to(
+      'Go',
       state: 'token',
       msg_type: 'Ping',
       msg_payload: { 'id' => 1 },
       target_path: 'root/1'
-    ) { 'Go' }
+    )
 
     expect(html).to include(%(name="#{ViewComponentReducible.config.adapter.state_param_name}"))
     expect(html).to include('value="token"')

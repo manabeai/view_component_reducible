@@ -9,17 +9,15 @@
       <div class="mt-4 grid grid-cols-7 gap-2 text-center">
         <% (1..30).each do |day| %>
           <%= vcr_button_to(
+            day,
             state: vcr_state_token,
             msg_type: :select_day,
-            msg_payload: { day: day }
-          ) do %>
-            <button
-              type="submit"
-              data-testid="day-<%= day %>"
-              class="rounded-xl border px-3 py-2 text-sm font-semibold <%= vcr_state.selected_day == day ? "border-amber-500 bg-amber-100 text-amber-800" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-amber-50" %>">
-              <%= day %>
-            </button>
-          <% end %>
+            msg_payload: { day: day },
+            button_attrs: {
+              data: { testid: "day-#{day}" },
+              class: "rounded-xl border px-3 py-2 text-sm font-semibold #{vcr_state.selected_day == day ? "border-amber-500 bg-amber-100 text-amber-800" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-amber-50"}"
+            }
+          ) %>
         <% end %>
       </div>
     </div>
@@ -31,17 +29,15 @@
           <div class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
             <% Array(vcr_state.available_times).each do |time_label| %>
               <%= vcr_button_to(
+                time_label,
                 state: vcr_state_token,
                 msg_type: :select_time,
-                msg_payload: { time: time_label }
-              ) do %>
-                <button
-                  type="submit"
-                  data-testid="time-<%= time_label %>"
-                  class="rounded-xl border px-4 py-3 text-sm font-semibold <%= vcr_state.selected_time == time_label ? "border-amber-500 bg-white text-amber-800 shadow" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300" %>">
-                  <%= time_label %>
-                </button>
-              <% end %>
+                msg_payload: { time: time_label },
+                button_attrs: {
+                  data: { testid: "time-#{time_label}" },
+                  class: "rounded-xl border px-4 py-3 text-sm font-semibold #{vcr_state.selected_time == time_label ? "border-amber-500 bg-white text-amber-800 shadow" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300"}"
+                }
+              ) %>
             <% end %>
           </div>
         </div>
@@ -54,18 +50,16 @@
           <div class="mt-4 grid gap-3 sm:grid-cols-3">
             <% Array(vcr_state.available_staff).each do |staff| %>
               <%= vcr_button_to(
+                staff,
                 state: vcr_state_token,
                 msg_type: :select_staff,
-                msg_payload: { staff: staff }
-              ) do %>
-                <button
-                  type="submit"
-                  data-testid="staff-<%= staff.downcase %>"
-                  aria-pressed="<%= vcr_state.selected_staff == staff %>"
-                  class="rounded-xl border px-4 py-3 text-sm font-semibold <%= vcr_state.selected_staff == staff ? "border-amber-500 bg-amber-50 text-amber-800" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300" %>">
-                  <%= staff %>
-                </button>
-              <% end %>
+                msg_payload: { staff: staff },
+                button_attrs: {
+                  data: { testid: "staff-#{staff.downcase}" },
+                  aria: { pressed: vcr_state.selected_staff == staff },
+                  class: "rounded-xl border px-4 py-3 text-sm font-semibold #{vcr_state.selected_staff == staff ? "border-amber-500 bg-amber-50 text-amber-800" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300"}"
+                }
+              ) %>
             <% end %>
           </div>
           <% if vcr_state.selected_staff %>

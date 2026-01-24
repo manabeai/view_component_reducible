@@ -59,9 +59,7 @@ Post a message to `/vcr/dispatch` so it reaches the component reducer.
 Option A: use the helper to hide the wiring.
 
 ```erb
-<%= vcr_button_to(state: @vcr_state_token, msg_type: :clicked_save) do %>
-  <button type="submit">Save</button>
-<% end %>
+<%= vcr_button_to("Save", state: @vcr_state_token, msg_type: :clicked_save) %>
 ```
 
 Option B: write the hidden fields directly.
