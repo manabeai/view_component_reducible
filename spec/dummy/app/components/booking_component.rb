@@ -86,7 +86,7 @@ class BookingComponent < ViewComponent::Base
   end
 
   def calendar_day_records
-    BookingMockData.calendar_day_records(vcr_state.calendar_days)
+    BookingMockData.calendar_day_records(state.calendar_days)
   end
 
   def calendar_day_summary(day)
@@ -119,7 +119,7 @@ class BookingComponent < ViewComponent::Base
     disabled = "cursor-not-allowed border-stone-300 bg-stone-200 text-stone-600"
     state_class = if calendar_day_disabled?(status)
                     disabled
-                  elsif vcr_state.selected_day == day
+                  elsif state.selected_day == day
                     selected
                   else
                     normal

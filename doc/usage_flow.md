@@ -87,8 +87,8 @@ with a `data-vcr-path` boundary based on the envelope path.
 
 ```erb
 <div>
-  <p>Name: <%= vcr_state.name %></p>
-  <p>Loading: <%= vcr_state.loading %></p>
+  <p>Name: <%= state.name %></p>
+  <p>Loading: <%= state.loading %></p>
 </div>
 ```
 
@@ -97,13 +97,14 @@ with a `data-vcr-path` boundary based on the envelope path.
 Post a message to `/vcr/dispatch` so it reaches the component reducer.
 
 ```erb
-<%= vcr_button_to("Save", state: @vcr_state_token, msg_type: :clicked_save) %>
+<%= vcr_button_to("Save", msg_type: :clicked_save) %>
 ```
+The helper defaults the state token to the current component, so you usually do not need to pass it.
 
 ## 5. Dispatch flow (summary)
 
 - The request hits `ViewComponentReducible::DispatchController#call`.
-- The adapter loads the envelope from `vcr_state`.
+- The adapter loads the envelope from the signed state param (defaults to `vcr_state`).
 - `Msg.from_params` builds the message.
 - `Runtime#call` routes to the target component by `vcr_target_path`.
 - The component `reduce` runs and updates state.

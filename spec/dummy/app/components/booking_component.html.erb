@@ -19,18 +19,17 @@
                 <p class="text-xs text-stone-500">ご来店日を選択してください</p>
               </div>
             </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold <%= vcr_state.selected_day ? "bg-amber-500 text-white" : "border border-amber-500 text-amber-500" %>">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold <%= state.selected_day ? "bg-amber-500 text-white" : "border border-amber-500 text-amber-500" %>">
               1
             </div>
           </div>
-          <div class="pointer-events-none absolute right-[46px] top-full h-8 w-1 <%= vcr_state.selected_day ? "bg-amber-300" : "bg-stone-200" %>"></div>
+          <div class="pointer-events-none absolute right-[46px] top-full h-8 w-1 <%= state.selected_day ? "bg-amber-300" : "bg-stone-200" %>"></div>
 
           <div class="grid grid-cols-4 gap-2 sm:grid-cols-7">
             <% calendar_day_records.each do |day_info| %>
               <% day = day_info.day %>
               <%= vcr_button_to(
                 day,
-                state: vcr_state_token,
                 msg_type: :select_day,
                 msg_payload: { day: day },
                 button_attrs: {
@@ -55,26 +54,25 @@
               </div>
               <div>
                 <h2 class="text-lg font-bold">ご希望の時間</h2>
-                <p class="text-xs text-stone-500">Day <%= vcr_state.selected_day %></p>
+                <p class="text-xs text-stone-500">Day <%= state.selected_day %></p>
               </div>
             </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold <%= vcr_state.selected_time ? "bg-amber-500 text-white" : "border border-amber-500 text-amber-500" %>">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold <%= state.selected_time ? "bg-amber-500 text-white" : "border border-amber-500 text-amber-500" %>">
               2
             </div>
           </div>
-          <div class="pointer-events-none absolute right-[46px] top-full h-8 w-1 <%= vcr_state.selected_time ? "bg-amber-300" : "bg-stone-200" %>"></div>
+          <div class="pointer-events-none absolute right-[46px] top-full h-8 w-1 <%= state.selected_time ? "bg-amber-300" : "bg-stone-200" %>"></div>
 
-          <% if vcr_state.selected_day %>
+          <% if state.selected_day %>
             <div class="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
-              <% Array(vcr_state.available_times).each do |time_label| %>
+              <% Array(state.available_times).each do |time_label| %>
                 <%= vcr_button_to(
                   time_label,
-                  state: vcr_state_token,
                   msg_type: :select_time,
                   msg_payload: { time: time_label },
                   button_attrs: {
                     data: { testid: "time-#{time_label}" },
-                    class: "rounded-xl border px-4 py-3 text-sm font-semibold #{vcr_state.selected_time == time_label ? "border-amber-500 bg-white text-amber-800 shadow" : "border-stone-200 bg-white text-stone-700 hover:border-amber-300"}"
+                    class: "rounded-xl border px-4 py-3 text-sm font-semibold #{state.selected_time == time_label ? "border-amber-500 bg-white text-amber-800 shadow" : "border-stone-200 bg-white text-stone-700 hover:border-amber-300"}"
                   }
                 ) %>
               <% end %>
@@ -94,26 +92,25 @@
               </div>
               <div>
                 <h2 class="text-lg font-bold">担当スタッフ</h2>
-                <p class="text-xs text-stone-500">Time <%= vcr_state.selected_time %></p>
+                <p class="text-xs text-stone-500">Time <%= state.selected_time %></p>
               </div>
             </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold <%= vcr_state.selected_staff ? "bg-amber-500 text-white" : "border border-amber-500 text-amber-500" %>">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold <%= state.selected_staff ? "bg-amber-500 text-white" : "border border-amber-500 text-amber-500" %>">
               3
             </div>
           </div>
 
-          <% if vcr_state.selected_time %>
+          <% if state.selected_time %>
             <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              <% Array(vcr_state.available_staff).each do |staff| %>
+              <% Array(state.available_staff).each do |staff| %>
                 <%= vcr_button_to(
                   staff,
-                  state: vcr_state_token,
                   msg_type: :select_staff,
                   msg_payload: { staff: staff },
                   button_attrs: {
                     data: { testid: "staff-#{staff.downcase}" },
-                    aria: { pressed: vcr_state.selected_staff == staff },
-                    class: "rounded-xl border px-4 py-3 text-sm font-semibold #{vcr_state.selected_staff == staff ? "border-amber-500 bg-amber-50 text-amber-800" : "border-stone-200 bg-white text-stone-700 hover:border-amber-300"}"
+                    aria: { pressed: state.selected_staff == staff },
+                    class: "rounded-xl border px-4 py-3 text-sm font-semibold #{state.selected_staff == staff ? "border-amber-500 bg-amber-50 text-amber-800" : "border-stone-200 bg-white text-stone-700 hover:border-amber-300"}"
                   }
                 ) %>
               <% end %>
@@ -133,15 +130,15 @@
           <dl class="mt-6 space-y-6">
             <div class="flex items-start justify-between">
               <dt class="text-xs font-medium text-stone-400">ご来店予定日</dt>
-              <dd class="text-right text-sm font-bold <%= summary_class(vcr_state.selected_day) %>" data-testid="selected-day"><%= calendar_day_summary(vcr_state.selected_day) %></dd>
+              <dd class="text-right text-sm font-bold <%= summary_class(state.selected_day) %>" data-testid="selected-day"><%= calendar_day_summary(state.selected_day) %></dd>
             </div>
             <div class="flex items-start justify-between">
               <dt class="text-xs font-medium text-stone-400">お時間</dt>
-              <dd class="text-right text-sm font-bold <%= summary_class(vcr_state.selected_time) %>" data-testid="selected-time"><%= summary_label(vcr_state.selected_time) %></dd>
+              <dd class="text-right text-sm font-bold <%= summary_class(state.selected_time) %>" data-testid="selected-time"><%= summary_label(state.selected_time) %></dd>
             </div>
             <div class="flex items-start justify-between">
               <dt class="text-xs font-medium text-stone-400">担当者</dt>
-              <dd class="text-right text-sm font-bold <%= summary_class(vcr_state.selected_staff) %>" data-testid="selected-staff"><%= summary_label(vcr_state.selected_staff) %></dd>
+              <dd class="text-right text-sm font-bold <%= summary_class(state.selected_staff) %>" data-testid="selected-staff"><%= summary_label(state.selected_staff) %></dd>
             </div>
           </dl>
 
@@ -153,7 +150,7 @@
               </div>
             </div>
 
-            <% if vcr_state.selected_staff %>
+            <% if state.selected_staff %>
               <button
                 type="button"
                 data-testid="booking-button"

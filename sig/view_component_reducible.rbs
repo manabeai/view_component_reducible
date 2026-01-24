@@ -27,6 +27,7 @@ module ViewComponentReducible
     def vcr_envelope: () -> Hash[untyped, untyped]?
     def vcr_state_token: () -> String?
     def vcr_state: () -> untyped
+    def state: () -> untyped
     def vcr_dom_id: (path: String) -> String
     def vcr_button_to: (?String, msg_type: String, ?state: String?, ?msg_payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String, ?button_attrs: Hash[untyped, untyped]) { () -> untyped } -> String
     def vcr_dispatch_form: (?String, msg_type: String, ?state: String?, ?msg_payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String, ?button_attrs: Hash[untyped, untyped]) { () -> untyped } -> String

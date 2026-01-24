@@ -11,6 +11,10 @@ RSpec.describe ViewComponentReducible::Component do
     Class.new(ViewComponent::Base) do
       include ViewComponentReducible::Component
 
+      state do
+        field :count, default: 0
+      end
+
       def call
         content_tag(:div, 'Hello')
       end
@@ -43,5 +47,12 @@ RSpec.describe ViewComponentReducible::Component do
 
     expect(root['data-vcr-path']).to be_nil
     expect(root.content).to include('Hello')
+  end
+
+  it 'exposes state as an alias for vcr_state' do
+    component = TestComponent.new(vcr_envelope: { 'data' => { 'count' => 3 } })
+
+    expect(component.state).to eq(component.vcr_state)
+    expect(component.state.count).to eq(3)
   end
 end

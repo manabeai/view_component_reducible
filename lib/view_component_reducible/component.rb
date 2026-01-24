@@ -38,6 +38,12 @@ module ViewComponentReducible
       schema.build_data(vcr_envelope['data'])
     end
 
+    # Alias for vcr_state to keep templates concise.
+    # @return [Data]
+    def state
+      vcr_state
+    end
+
     # Optional DOM target id for updates.
     # @param path [String]
     # @return [String]
