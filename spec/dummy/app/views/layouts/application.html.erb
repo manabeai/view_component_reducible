@@ -25,7 +25,7 @@
 
   <body>
     <%= yield %>
-    <% if params[:debug] %>
+    <% if params[:debug].present? || Rails.env.test? %>
       <%= vcr_debug_bar_tag %>
     <% end %>
     <%= vcr_dispatch_script_tag %>

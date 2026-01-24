@@ -26,7 +26,7 @@ const expectedStaffCount = (timeLabel) => {
 
 test('counter increments, decrements, and resets', async ({ page }) => {
   // 初期表示を開く
-  await page.goto('/');
+  await page.goto('/?debug=1');
 
   // 最初のカウンター領域と表示ラベルを取得
   const first = page.locator('section').first();
@@ -77,7 +77,7 @@ test('two counters update independently', async ({ page }) => {
 
 test('booking flow reveals times and staff', async ({ page }) => {
   // 予約フロー画面へ遷移
-  await page.goto('/effects');
+  await page.goto('/effects?debug=1');
 
   // 右側のサマリが初期表示で未選択になっていることを確認
   await expect(page.getByTestId('booking-summary')).toBeVisible();
@@ -115,6 +115,11 @@ test('booking flow reveals times and staff', async ({ page }) => {
   await expect(page.getByTestId('selected-staff')).toHaveText(selectedStaff);
   await expect(page.getByTestId('booking-button')).toBeVisible();
 
+  // 同じ時間を選び直してもスタッフがリセットされないことを確認
+  await timeButtons.first().click();
+  await expect(page.getByTestId('selected-staff')).toHaveText(selectedStaff);
+  await expect(page.getByTestId('booking-button')).toBeVisible();
+
   // 日付を選び直すとスタッフと時間がリセットされることを確認
   await page.getByTestId('day-16').click();
   await expect(page.getByTestId('selected-day')).toHaveText('2024年3月16日');
@@ -125,6 +130,7 @@ test('booking flow reveals times and staff', async ({ page }) => {
 
 test('debug bar highlights the clicked button', async ({ page }) => {
   // デバッグバーが表示されることを前提に、クリックとログ生成を確認する
+  await page.setViewportSize({ width: 1200, height: 800 });
   await page.goto('/');
 
   const debugBar = page.locator('[data-vcr-debug-bar]');
@@ -146,6 +152,7 @@ test('debug bar highlights the clicked button', async ({ page }) => {
 
 test('debug bar toggles show all and clears history', async ({ page }) => {
   // デバッグバーのUI操作がログ表示に影響することを確認
+  await page.setViewportSize({ width: 1200, height: 800 });
   await page.goto('/effects');
 
   const debugBar = page.locator('[data-vcr-debug-bar]');
