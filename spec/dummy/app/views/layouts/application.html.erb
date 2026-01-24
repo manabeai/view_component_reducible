@@ -25,7 +25,9 @@
 
   <body>
     <%= yield %>
-    <%= vcr_debug_bar_tag %>
+    <% if params[:debug] %>
+      <%= vcr_debug_bar_tag %>
+    <% end %>
     <%= vcr_dispatch_script_tag %>
   </body>
 </html>
