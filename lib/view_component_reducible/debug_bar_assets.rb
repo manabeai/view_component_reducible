@@ -158,12 +158,37 @@ module ViewComponentReducible
         color: #e2e8f0;
         font-size: 10px;
         line-height: 1.4;
-        white-space: pre-wrap;
         opacity: 0;
         transform: translateY(4px);
         transition: opacity 120ms ease, transform 120ms ease;
         pointer-events: none;
         z-index: 10;
+      }
+      #vcr-debug-bar .vcr-debug-chain-tooltip-title {
+        font-weight: 700;
+        color: #f8fafc;
+        margin-bottom: 4px;
+      }
+      #vcr-debug-bar .vcr-debug-chain-tooltip-row {
+        display: flex;
+        gap: 6px;
+        align-items: baseline;
+        margin-top: 2px;
+      }
+      #vcr-debug-bar .vcr-debug-chain-tooltip-key {
+        color: #94a3b8;
+        min-width: 72px;
+      }
+      #vcr-debug-bar .vcr-debug-chain-tooltip-value {
+        color: #e2e8f0;
+        word-break: break-word;
+      }
+      #vcr-debug-bar .vcr-debug-chain-tooltip-list {
+        margin-top: 4px;
+        padding-left: 12px;
+      }
+      #vcr-debug-bar .vcr-debug-chain-tooltip-list li {
+        margin-top: 2px;
       }
       #vcr-debug-bar .vcr-debug-chain-node:hover .vcr-debug-chain-tooltip {
         opacity: 1;
@@ -295,6 +320,28 @@ module ViewComponentReducible
             onHover(target, false);
           });
         }
+        function positionChainTooltip(node) {
+          var tooltip = node.querySelector(".vcr-debug-chain-tooltip");
+          if (!tooltip) return;
+          tooltip.style.left = "";
+          tooltip.style.right = "";
+          tooltip.style.top = "";
+          tooltip.style.bottom = "";
+          var rect = tooltip.getBoundingClientRect();
+          var gutter = 8;
+          if (rect.right > window.innerWidth - gutter) {
+            tooltip.style.left = "auto";
+            tooltip.style.right = "0";
+          }
+          if (rect.left < gutter) {
+            tooltip.style.left = "0";
+            tooltip.style.right = "auto";
+          }
+          if (rect.bottom > window.innerHeight - gutter) {
+            tooltip.style.top = "auto";
+            tooltip.style.bottom = "120%";
+          }
+        }
         bindHover("[data-vcr-debug-source]", function(target, active) {
           highlightSource(target.getAttribute("data-vcr-debug-source-id"), active);
         });
@@ -303,6 +350,11 @@ module ViewComponentReducible
         });
         bindHover("[data-vcr-debug-key]", function(target, active) {
           highlightChange(target.closest("[data-vcr-debug-entry]"), target.getAttribute("data-vcr-debug-key"), active);
+        });
+        bindHover(".vcr-debug-chain-node", function(target, active) {
+          if (active) {
+            positionChainTooltip(target);
+          }
         });
         if (toggle) {
           toggle.addEventListener("change", function(event) {
@@ -348,30 +400,68 @@ module ViewComponentReducible
           return text.slice(0, limit) + "...";
         }
         function buildChainTooltip(stepDetail, fallbackType) {
-          var lines = [];
+          var wrapper = document.createElement("div");
           var eventType = stepDetail.msg_type || fallbackType || "unknown";
-          lines.push("event: " + eventType);
+          var title = document.createElement("div");
+          title.className = "vcr-debug-chain-tooltip-title";
+          title.textContent = "event: " + eventType;
+          wrapper.appendChild(title);
+          function addRow(key, value) {
+            var row = document.createElement("div");
+            row.className = "vcr-debug-chain-tooltip-row";
+            var keyNode = document.createElement("span");
+            keyNode.className = "vcr-debug-chain-tooltip-key";
+            keyNode.textContent = key;
+            var valueNode = document.createElement("span");
+            valueNode.className = "vcr-debug-chain-tooltip-value";
+            valueNode.textContent = value;
+            row.appendChild(keyNode);
+            row.appendChild(valueNode);
+            wrapper.appendChild(row);
+          }
           if (stepDetail.payload !== undefined) {
-            lines.push("payload: " + truncateText(formatValue(stepDetail.payload), 140));
+            addRow("payload", truncateText(formatValue(stepDetail.payload), 140));
           }
           var keys = Array.isArray(stepDetail.changed_keys) ? stepDetail.changed_keys : [];
+          addRow("changed", keys.length ? String(keys.length) : "(none)");
           if (keys.length) {
-            lines.push("changed: " + keys.join(", "));
+            var changesList = document.createElement("ul");
+            changesList.className = "vcr-debug-chain-tooltip-list";
             var changes = stepDetail.changes || {};
             keys.slice(0, 3).forEach(function(key) {
               var change = changes[key];
               if (!change) return;
-              lines.push(
-                key + ": " + formatValue(change.from) + " -> " + formatValue(change.to)
-              );
+              var item = document.createElement("li");
+              item.textContent = key + ": " + formatValue(change.from) + " -> " + formatValue(change.to);
+              changesList.appendChild(item);
             });
-          } else {
-            lines.push("changed: (none)");
+            if (keys.length > 3) {
+              var moreItem = document.createElement("li");
+              moreItem.textContent = "+" + (keys.length - 3) + " more";
+              changesList.appendChild(moreItem);
+            }
+            wrapper.appendChild(changesList);
           }
           if (stepDetail.state !== undefined) {
-            lines.push("state: " + truncateText(formatValue(stepDetail.state), 180));
+            var stateKeys = Object.keys(stepDetail.state || {});
+            addRow("state keys", stateKeys.length ? String(stateKeys.length) : "0");
+            if (stateKeys.length) {
+              var stateList = document.createElement("ul");
+              stateList.className = "vcr-debug-chain-tooltip-list";
+              stateKeys.slice(0, 3).forEach(function(key) {
+                var item = document.createElement("li");
+                item.textContent = key + ": " + truncateText(formatValue(stepDetail.state[key]), 80);
+                stateList.appendChild(item);
+              });
+              if (stateKeys.length > 3) {
+                var moreState = document.createElement("li");
+                moreState.textContent = "+" + (stateKeys.length - 3) + " more";
+                stateList.appendChild(moreState);
+              }
+              wrapper.appendChild(stateList);
+            }
           }
-          return lines.join("\\n");
+          return wrapper;
         }
         function buildChangeRow(key, change, unchangedValue) {
           var row = document.createElement("div");
@@ -483,7 +573,8 @@ module ViewComponentReducible
               node.textContent = step;
               var tooltip = document.createElement("div");
               tooltip.className = "vcr-debug-chain-tooltip";
-              tooltip.textContent = buildChainTooltip(stepDetails[index] || {}, step);
+              var tooltipContent = buildChainTooltip(stepDetails[index] || {}, step);
+              tooltip.appendChild(tooltipContent);
               node.appendChild(tooltip);
               chainGraph.appendChild(node);
               if (index < detail.chain.length - 1) {

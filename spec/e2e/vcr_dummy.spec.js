@@ -232,6 +232,6 @@ test('debug bar chain tooltip shows payload and state', async ({ page }) => {
 
   const tooltip = chainNode.locator('.vcr-debug-chain-tooltip');
   await expect(tooltip).toBeVisible();
-  await expect(tooltip).toContainText('payload:');
-  await expect(tooltip).toContainText('state:');
+  await expect(tooltip).toContainText('payload');
+  await expect(tooltip).toContainText('state keys');
 });
