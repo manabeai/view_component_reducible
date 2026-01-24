@@ -84,11 +84,14 @@ test('booking flow reveals times and staff', async ({ page }) => {
   await expect(page.getByTestId('selected-day')).toHaveText('未選択');
   await expect(page.getByTestId('selected-time')).toHaveText('未選択');
   await expect(page.getByTestId('selected-staff')).toHaveText('未選択');
+  await expect(page.getByTestId('time-hint')).toHaveText('先に日程を選択してください');
+  await expect(page.getByTestId('staff-hint')).toHaveText('先に時間を選択してください');
 
   // 日付を選択して時間一覧を出す
   const selectedDay = 15;
   await page.getByTestId(`day-${selectedDay}`).click();
   await expect(page.getByTestId('selected-day')).toHaveText('2024年3月15日');
+  await expect(page.getByTestId('time-hint')).toHaveCount(0);
   const timeButtons = page.locator('[data-testid^="time-"]');
   await expect(timeButtons.first()).toBeVisible();
   // 時間の件数がモック仕様通りであることを確認
@@ -100,6 +103,7 @@ test('booking flow reveals times and staff', async ({ page }) => {
   await timeButtons.first().click();
   await expect(page.getByTestId('selected-time')).toHaveText(selectedTime);
   await expect(page.getByTestId('staff-list')).toBeVisible();
+  await expect(page.getByTestId('staff-hint')).toHaveCount(0);
   // 初期状態では予約ボタンが出ないことを確認
   await expect(page.getByTestId('booking-button')).toHaveCount(0);
   // スタッフ候補を取得
