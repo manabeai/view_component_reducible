@@ -3,6 +3,12 @@
 class BookingComponent < ViewComponent::Base
   include ViewComponentReducible::Component
 
+  CALENDAR_STATUS = {
+    "circle" => ["◯", "rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700"],
+    "triangle" => ["△", "rounded-full bg-yellow-100 px-2 py-0.5 text-yellow-700"],
+    "cross" => ["×", "text-stone-500"]
+  }.freeze
+
   state do
     field :calendar_days, default: -> { BookingMockData.calendar_days }
     field :selected_day, default: nil
@@ -69,21 +75,11 @@ class BookingComponent < ViewComponent::Base
   end
 
   def calendar_status_label(status)
-    case status
-    when "circle" then "◯"
-    when "triangle" then "△"
-    when "cross" then "×"
-    else "-"
-    end
+    CALENDAR_STATUS.dig(status, 0) || "-"
   end
 
   def calendar_status_class(status)
-    case status
-    when "circle" then "rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700"
-    when "triangle" then "rounded-full bg-yellow-100 px-2 py-0.5 text-yellow-700"
-    when "cross" then "text-stone-500"
-    else "text-stone-400"
-    end
+    CALENDAR_STATUS.dig(status, 1) || "text-stone-400"
   end
 
   def calendar_day_button_class(day, status)
