@@ -555,10 +555,6 @@ module ViewComponentReducible
             entry.appendChild(payload);
           }
           if (Array.isArray(detail.chain) && detail.chain.length > 1) {
-            var chainLabel = document.createElement("div");
-            chainLabel.className = "vcr-debug-meta";
-            chainLabel.textContent = "chain: " + detail.chain.join(" -> ");
-            entry.appendChild(chainLabel);
             var chainGraph = document.createElement("div");
             chainGraph.className = "vcr-debug-chain";
             var stepDetails = Array.isArray(detail.chain_steps) ? detail.chain_steps : [];
