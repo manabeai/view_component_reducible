@@ -44,21 +44,24 @@ end
 
 ### 2-2. Reducer with effects (emit)
 
-Use effects to emit follow-up messages (often used to trigger external side effects).
+Use effects to emit follow-up messages (often used for data fetching).
 
 ```ruby
 class MyFormComponent < ViewComponent::Base
   include ViewComponentReducible::Component
 
   state do
+    field :items, default: []
     field :loading, default: false
   end
 
   def reduce(state, msg)
     case msg
-    in { type: :submit_form, payload: payload }
-      effect = build_save_effect(payload)
+    in { type: :fetch_items }
+      effect = build_fetch_effect
       [state.with(loading: true), effect]
+    in { type: :items_loaded, payload: payload }
+      state.with(items: payload.items || [], loading: false)
     else
       state
     end
@@ -66,8 +69,13 @@ class MyFormComponent < ViewComponent::Base
 
   private
 
-  def build_save_effect(payload)
-    emit(:perform_save, payload: payload)
+  def build_fetch_effect
+    emit(:items_loaded, items: fetch_items)
+  end
+
+  def fetch_items
+    # external call here
+    []
   end
 end
 ```
@@ -88,22 +96,8 @@ with a `data-vcr-path` boundary based on the envelope path.
 
 Post a message to `/vcr/dispatch` so it reaches the component reducer.
 
-Option A: use the helper to hide the wiring.
-
 ```erb
 <%= vcr_button_to("Save", state: @vcr_state_token, msg_type: :clicked_save) %>
-```
-
-Option B: write the hidden fields directly.
-
-```erb
-<form method="post" action="/vcr/dispatch">
-  <input type="hidden" name="vcr_state" value="<%= @vcr_state_token %>">
-  <input type="hidden" name="vcr_msg_type" value="clicked_save">
-  <input type="hidden" name="vcr_msg_payload" value="{}">
-  <input type="hidden" name="vcr_target_path" value="root">
-  <button type="submit">Save</button>
-</form>
 ```
 
 ## 5. Dispatch flow (summary)
