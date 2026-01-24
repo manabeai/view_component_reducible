@@ -4,6 +4,7 @@ module ViewComponentReducible
   # Core runtime for dispatching messages and rendering components.
   class Runtime
     MAX_EFFECT_STEPS = 8
+    attr_reader :debug_chain
 
     # @param envelope [Hash]
     # @param msg [ViewComponentReducible::Msg]
@@ -11,6 +12,7 @@ module ViewComponentReducible
     # @param controller [ActionController::Base]
     # @return [Array<Hash, String>] [new_envelope, html]
     def call(envelope:, msg:, target_path:, controller:)
+      @debug_chain = [msg.type.to_s]
       root_klass = ViewComponentReducible.registry.fetch(envelope['root'])
       new_env = deep_dup(envelope)
 
@@ -77,6 +79,8 @@ module ViewComponentReducible
         follow_msg = resolve_effect_msg(eff, controller, env)
         next unless follow_msg
         raise ArgumentError, 'Effect must return a Msg' unless follow_msg.is_a?(Msg)
+
+        @debug_chain << follow_msg.type.to_s if @debug_chain
 
         component = component_klass.new(vcr_envelope: env)
         schema = component_klass.vcr_state_schema

@@ -94,6 +94,7 @@ module ViewComponentReducible
     MAX_EFFECT_STEPS: Integer
     def call: (envelope: Hash[untyped, untyped], msg: Msg, target_path: String, controller: ActionController::Base) -> [Hash[untyped, untyped], String]
     def render_target: (envelope: Hash[untyped, untyped], target_path: String, controller: ActionController::Base) -> String
+    def debug_chain: () -> Array[String]?
   end
 
   module Dispatch
