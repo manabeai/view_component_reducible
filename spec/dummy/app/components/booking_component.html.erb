@@ -10,7 +10,7 @@
         <% (1..30).each do |day| %>
           <%= vcr_button_to(
             state: vcr_state_token,
-            msg_type: "SelectDay",
+            msg_type: :select_day,
             msg_payload: { day: day }
           ) do %>
             <button
@@ -32,7 +32,7 @@
             <% Array(vcr_state.available_times).each do |time_label| %>
               <%= vcr_button_to(
                 state: vcr_state_token,
-                msg_type: "SelectTime",
+                msg_type: :select_time,
                 msg_payload: { time: time_label }
               ) do %>
                 <button
@@ -55,7 +55,7 @@
             <% Array(vcr_state.available_staff).each do |staff| %>
               <%= vcr_button_to(
                 state: vcr_state_token,
-                msg_type: "SelectStaff",
+                msg_type: :select_staff,
                 msg_payload: { staff: staff }
               ) do %>
                 <button

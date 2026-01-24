@@ -14,17 +14,17 @@
     </div>
 
     <div class="mt-10 flex flex-wrap justify-center gap-3">
-      <%= vcr_button_to(msg_type: "Increment") do %>
+      <%= vcr_button_to(msg_type: :increment) do %>
         <button type="submit" class="rounded-xl bg-amber-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-amber-500/30 hover:bg-amber-400">
           +
         </button>
       <% end %>
-      <%= vcr_button_to(msg_type: "Decrement") do %>
+      <%= vcr_button_to(msg_type: :decrement) do %>
         <button type="submit" class="rounded-xl bg-slate-200 px-6 py-3 text-base font-semibold text-slate-800 hover:bg-slate-300">
           -
         </button>
       <% end %>
-      <%= vcr_button_to(msg_type: "Reset") do %>
+      <%= vcr_button_to(msg_type: :reset) do %>
         <button type="submit" class="rounded-xl border border-rose-300 bg-rose-100 px-6 py-3 text-base font-semibold text-rose-700 hover:bg-rose-200">
           reset
         </button>

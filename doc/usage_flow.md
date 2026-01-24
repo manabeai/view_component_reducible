@@ -59,7 +59,7 @@ Post a message to `/vcr/dispatch` so it reaches the component reducer.
 Option A: use the helper to hide the wiring.
 
 ```erb
-<%= vcr_button_to(state: @vcr_state_token, msg_type: "ClickedSave") do %>
+<%= vcr_button_to(state: @vcr_state_token, msg_type: :clicked_save) do %>
   <button type="submit">Save</button>
 <% end %>
 ```
@@ -69,7 +69,7 @@ Option B: write the hidden fields directly.
 ```erb
 <form method="post" action="/vcr/dispatch">
   <input type="hidden" name="vcr_state" value="<%= @vcr_state_token %>">
-  <input type="hidden" name="vcr_msg_type" value="ClickedSave">
+  <input type="hidden" name="vcr_msg_type" value="clicked_save">
   <input type="hidden" name="vcr_msg_payload" value="{}">
   <input type="hidden" name="vcr_target_path" value="root">
   <button type="submit">Save</button>
