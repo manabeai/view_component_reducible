@@ -68,6 +68,13 @@ module ViewComponentReducible
         flex-direction: column;
         gap: 10px;
       }
+      #vcr-debug-bar .vcr-debug-change.vcr-debug-change-highlight {
+        outline: 1px solid #38bdf8;
+        outline-offset: 2px;
+        border-radius: 6px;
+        background: rgba(56, 189, 248, 0.08);
+        padding: 2px 4px;
+      }
       #vcr-debug-bar .vcr-debug-empty {
         color: #64748b;
         font-size: 12px;
