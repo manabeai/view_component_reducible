@@ -36,7 +36,7 @@ bundle install
 mount ViewComponentReducible::Engine, at: "/vcr"
 ```
 
-### 3. Configure adapter + register component
+### 3. Configure adapter
 
 ```rb
 # config/initializers/view_component_reducible.rb
@@ -44,11 +44,9 @@ ViewComponentReducible.configure do |config|
   config.adapter = ViewComponentReducible::Adapter::HiddenField
   config.secret = Rails.application.secret_key_base
 end
-
-Rails.application.config.to_prepare do
-  ViewComponentReducible.register(CounterComponent)
-end
 ```
+
+Including `ViewComponentReducible::Component` registers the component automatically.
 
 ### 4. Create component
 

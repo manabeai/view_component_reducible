@@ -25,6 +25,19 @@ RSpec.describe ViewComponentReducible::Component do
     stub_const('TestComponent', component_class)
   end
 
+  after do
+    ViewComponentReducible.registry.clear
+  end
+
+  it 'auto registers named components when included' do
+    ViewComponentReducible.registry.clear
+    stub_const('AutoRegisterComponent', Class.new(ViewComponent::Base))
+
+    AutoRegisterComponent.include(ViewComponentReducible::Component)
+
+    expect(ViewComponentReducible.registry).to include('AutoRegisterComponent' => AutoRegisterComponent)
+  end
+
   it 'wraps rendered output with a VCR boundary when a path is present' do
     component = TestComponent.new(vcr_envelope: { 'path' => 'root/1' })
 

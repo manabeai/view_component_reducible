@@ -12,6 +12,9 @@ module ViewComponentReducible
     def self.included(base)
       base.include(State::DSL)
       base.extend(ClassMethods)
+      return unless ViewComponentReducible.respond_to?(:register) && !base.name.to_s.empty?
+
+      ViewComponentReducible.register(base)
     end
 
     # @return [Hash, nil]

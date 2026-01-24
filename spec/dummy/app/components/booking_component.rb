@@ -140,5 +140,3 @@ class BookingComponent < ViewComponent::Base
     status == "cross"
   end
 end
-
-ViewComponentReducible.register(BookingComponent)
