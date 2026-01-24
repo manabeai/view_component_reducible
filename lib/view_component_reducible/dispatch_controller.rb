@@ -58,9 +58,11 @@ module ViewComponentReducible
       before_env = find_env(envelope, target_path)
       after_env = find_env(new_envelope, target_path)
       changes = diff_state(before_env.fetch('data', {}), after_env.fetch('data', {}))
+      payload = normalize_debug_payload(msg.payload)
       {
         'path' => target_path,
         'msg_type' => msg.type.to_s,
+        **(payload.nil? ? {} : { 'payload' => payload }),
         'chain' => Array(chain),
         'changed_keys' => changes.keys,
         'changes' => changes,
@@ -86,6 +88,12 @@ module ViewComponentReducible
 
       child = envelope.fetch('children', {}).fetch(target_path) { raise KeyError, "Unknown path: #{target_path}" }
       find_env(child, target_path)
+    end
+
+    def normalize_debug_payload(payload)
+      return if payload.is_a?(ViewComponentReducible::Msg::Payload::Empty)
+
+      payload.respond_to?(:to_h) ? payload.to_h : payload
     end
   end
 end

@@ -147,6 +147,7 @@ test('debug bar highlights the clicked button', async ({ page }) => {
 
   const debugEntry = debugBar.locator('[data-vcr-debug-entry]').first();
   await expect(debugEntry).toBeVisible();
+  await expect(debugEntry.locator('.vcr-debug-payload')).toHaveCount(0);
 
   // from にホバーすると、押したボタンだけが赤点線で強調される
   const sourceLink = debugEntry.locator('[data-vcr-debug-source]').first();
@@ -166,6 +167,9 @@ test('debug bar toggles show all and clears history', async ({ page }) => {
   await page.getByTestId('day-15').click();
   const debugEntry = debugBar.locator('[data-vcr-debug-entry]').first();
   await expect(debugEntry).toBeVisible();
+  const payloadRow = debugEntry.locator('.vcr-debug-payload');
+  await expect(payloadRow).toBeVisible();
+  await expect(payloadRow).toContainText('payload:');
 
   // Show all をオンにすると未変更のstate行が出る
   const showAll = debugBar.locator('[data-vcr-debug-toggle]');
@@ -176,4 +180,36 @@ test('debug bar toggles show all and clears history', async ({ page }) => {
   const clearButton = debugBar.locator('[data-vcr-debug-clear]');
   await clearButton.click();
   await expect(debugBar.getByText('History cleared')).toBeVisible();
+});
+
+test('debug bar collapses long payload', async ({ page }) => {
+  // 長いpayloadは折りたたまれて表示される
+  await page.setViewportSize({ width: 1200, height: 800 });
+  await page.goto('/');
+
+  const debugBar = page.locator('[data-vcr-debug-bar]');
+  await expect(debugBar).toBeVisible();
+
+  await page.evaluate(() => {
+    const longPayload = 'x'.repeat(220);
+    window.dispatchEvent(
+      new CustomEvent('vcr:debug', {
+        detail: { msg_type: 'manual', payload: longPayload, path: 'root' }
+      })
+    );
+  });
+
+  const debugEntry = debugBar.locator('[data-vcr-debug-entry]').first();
+  const payloadRow = debugEntry.locator('.vcr-debug-payload');
+  const toggle = payloadRow.locator('[data-vcr-debug-payload-toggle]');
+  const payloadText = payloadRow.locator('.vcr-debug-payload-text');
+
+  await expect(toggle).toBeVisible();
+  await expect(payloadText).toContainText('...');
+
+  await toggle.click();
+  await expect(toggle).toHaveText('Collapse');
+
+  await toggle.click();
+  await expect(toggle).toHaveText('Expand');
 });

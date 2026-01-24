@@ -111,6 +111,17 @@ module ViewComponentReducible
         word-break: break-all;
         margin-bottom: 6px;
       }
+      #vcr-debug-bar .vcr-debug-payload {
+        color: #cbd5f5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        word-break: break-all;
+        margin-bottom: 6px;
+      }
+      #vcr-debug-bar .vcr-debug-payload button {
+        margin-left: 8px;
+        font-size: 9px;
+        letter-spacing: 0.12em;
+      }
       #vcr-debug-bar .vcr-debug-key {
         display: inline-flex;
         border: 1px solid #334155;
@@ -298,6 +309,10 @@ module ViewComponentReducible
             return String(value);
           }
         }
+        function truncateText(text, limit) {
+          if (text.length <= limit) return text;
+          return text.slice(0, limit) + "...";
+        }
         function renderEntry(entry, detail, showAll) {
           entry.innerHTML = "";
           var header = document.createElement("div");
@@ -326,6 +341,45 @@ module ViewComponentReducible
           path.textContent = "path: " + (detail.path || "-");
           path.setAttribute("data-vcr-debug-path", detail.path || "");
           entry.appendChild(path);
+          if (detail.payload !== undefined) {
+            var payload = document.createElement("div");
+            payload.className = "vcr-debug-payload";
+            var payloadLabel = document.createElement("span");
+            payloadLabel.textContent = "payload: ";
+            payload.appendChild(payloadLabel);
+            var payloadText = document.createElement("span");
+            payloadText.className = "vcr-debug-payload-text";
+            var formattedPayload = formatValue(detail.payload);
+            var limit = 160;
+            if (formattedPayload.length > limit) {
+              var truncated = truncateText(formattedPayload, limit);
+              payloadText.textContent = truncated;
+              var togglePayload = document.createElement("button");
+              togglePayload.type = "button";
+              togglePayload.className = "vcr-debug-payload-toggle";
+              togglePayload.setAttribute("data-vcr-debug-payload-toggle", "true");
+              togglePayload.setAttribute("aria-expanded", "false");
+              togglePayload.textContent = "Expand";
+              togglePayload.addEventListener("click", function() {
+                var expanded = togglePayload.getAttribute("aria-expanded") === "true";
+                if (expanded) {
+                  payloadText.textContent = truncated;
+                  togglePayload.textContent = "Expand";
+                  togglePayload.setAttribute("aria-expanded", "false");
+                } else {
+                  payloadText.textContent = formattedPayload;
+                  togglePayload.textContent = "Collapse";
+                  togglePayload.setAttribute("aria-expanded", "true");
+                }
+              });
+              payload.appendChild(payloadText);
+              payload.appendChild(togglePayload);
+            } else {
+              payloadText.textContent = formattedPayload;
+              payload.appendChild(payloadText);
+            }
+            entry.appendChild(payload);
+          }
           if (Array.isArray(detail.chain) && detail.chain.length > 1) {
             var chainLabel = document.createElement("div");
             chainLabel.className = "vcr-debug-meta";
