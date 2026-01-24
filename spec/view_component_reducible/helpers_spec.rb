@@ -24,6 +24,8 @@ RSpec.describe ViewComponentReducible::Helpers do
     expect(html).to include('name="vcr_target_path"')
     expect(html).to include('value="root/1"')
     expect(html).to include('data-vcr-form="true"')
+    expect(html).to include('data-vcr-source')
+    expect(html).to include('data-vcr-source-id')
     expect(html).to include('>Go<')
   end
 

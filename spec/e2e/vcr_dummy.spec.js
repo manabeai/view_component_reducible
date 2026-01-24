@@ -122,3 +122,47 @@ test('booking flow reveals times and staff', async ({ page }) => {
   await expect(page.getByTestId('selected-staff')).toHaveText('未選択');
   await expect(page.getByTestId('booking-button')).toHaveCount(0);
 });
+
+test('debug bar highlights the clicked button', async ({ page }) => {
+  // デバッグバーが表示されることを前提に、クリックとログ生成を確認する
+  await page.goto('/');
+
+  const debugBar = page.locator('[data-vcr-debug-bar]');
+  await expect(debugBar).toBeVisible();
+
+  // + を押してログが作られることを確認
+  const firstCounter = page.locator('section').first();
+  const incrementButton = firstCounter.getByRole('button', { name: '+' });
+  await incrementButton.click();
+
+  const debugEntry = debugBar.locator('[data-vcr-debug-entry]').first();
+  await expect(debugEntry).toBeVisible();
+
+  // from にホバーすると、押したボタンだけが赤点線で強調される
+  const sourceLink = debugEntry.locator('[data-vcr-debug-source]').first();
+  await sourceLink.hover();
+  await expect(incrementButton).toHaveClass(/vcr-debug-highlight/);
+});
+
+test('debug bar toggles show all and clears history', async ({ page }) => {
+  // デバッグバーのUI操作がログ表示に影響することを確認
+  await page.goto('/effects');
+
+  const debugBar = page.locator('[data-vcr-debug-bar]');
+  await expect(debugBar).toBeVisible();
+
+  // 予約フローでログを作る（変更されないキーが残る操作を選ぶ）
+  await page.getByTestId('day-15').click();
+  const debugEntry = debugBar.locator('[data-vcr-debug-entry]').first();
+  await expect(debugEntry).toBeVisible();
+
+  // Show all をオンにすると未変更のstate行が出る
+  const showAll = debugBar.locator('[data-vcr-debug-toggle]');
+  await showAll.check();
+  await expect(debugEntry.locator('.vcr-debug-unchanged').first()).toBeVisible();
+
+  // Clear History で履歴が消え、プレースホルダが出る
+  const clearButton = debugBar.locator('[data-vcr-debug-clear]');
+  await clearButton.click();
+  await expect(debugBar.getByText('History cleared')).toBeVisible();
+});

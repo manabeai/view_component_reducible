@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'digest'
 
 module ViewComponentReducible
   # View helpers for dispatching messages to the VCR endpoint.
@@ -41,6 +42,11 @@ module ViewComponentReducible
       raise ArgumentError, 'vcr_button_to requires a label or block.' if button_body.nil?
 
       button_attrs = options.fetch(:button_attrs, {})
+      source_label = button_attrs.dig(:data, :vcr_source) || msg_type.to_s
+      source_id = Digest::SHA256.hexdigest("#{msg_type}:#{payload}")
+      button_attrs = button_attrs.merge(
+        data: (button_attrs[:data] || {}).merge(vcr_source: source_label, vcr_source_id: source_id)
+      )
       url = options.fetch(:url, '/vcr/dispatch')
 
       form_tag(url, method: :post, data: { vcr_form: true, vcr_state_param: state_param }) do

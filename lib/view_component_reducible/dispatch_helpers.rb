@@ -17,11 +17,13 @@ module ViewComponentReducible
             event.preventDefault();
             var submitter = event.submitter || document.activeElement;
             var source = null;
+            var sourceId = null;
             if (submitter && submitter instanceof HTMLElement) {
               source = submitter.getAttribute("data-vcr-source") ||
                 submitter.getAttribute("aria-label") ||
                 (submitter.textContent || "").trim() ||
                 submitter.tagName.toLowerCase();
+              sourceId = submitter.getAttribute("data-vcr-source-id");
             }
             var formData = new FormData(form);
             formData.append("vcr_partial", "1");
@@ -67,6 +69,7 @@ module ViewComponentReducible
                   }
                   detail.event_type = detail.msg_type || eventType;
                   detail.source = source || detail.source;
+                  detail.source_id = sourceId || detail.source_id;
                   detail.path = detail.path || targetPath;
                   window.dispatchEvent(new CustomEvent("vcr:debug", { detail: detail }));
                 }

@@ -46,6 +46,20 @@ module ViewComponentReducible
       #vcr-debug-bar .vcr-debug-toggle input {
         accent-color: #38bdf8;
       }
+      #vcr-debug-bar .vcr-debug-source {
+        color: #f8fafc;
+        cursor: pointer;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #0f172a;
+        border: 1px solid #334155;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+      #vcr-debug-bar .vcr-debug-source:hover {
+        text-decoration: none;
+        border-color: #f87171;
+      }
       #vcr-debug-bar .vcr-debug-log {
         flex: 1;
         overflow-y: auto;
@@ -107,6 +121,10 @@ module ViewComponentReducible
       #vcr-debug-bar .vcr-debug-unchanged {
         color: #ffffff;
       }
+      .vcr-debug-highlight {
+        outline: 2px dashed #f87171;
+        outline-offset: 2px;
+      }
       #vcr-debug-bar .vcr-debug-change .vcr-debug-from,
       #vcr-debug-bar .vcr-debug-change .vcr-debug-to {
         color: #f87171;
@@ -151,6 +169,29 @@ module ViewComponentReducible
         var clear = bar.querySelector("[data-vcr-debug-clear]");
         var toggle = bar.querySelector("[data-vcr-debug-toggle]");
         var showAll = false;
+        function highlightSource(sourceId, active) {
+          if (!sourceId) return;
+          var nodes = document.querySelectorAll('[data-vcr-source-id="' + sourceId + '"]');
+          nodes.forEach(function(node) {
+            if (active) {
+              node.classList.add("vcr-debug-highlight");
+            } else {
+              node.classList.remove("vcr-debug-highlight");
+            }
+          });
+        }
+        bar.addEventListener("mouseover", function(event) {
+          var target = event.target;
+          if (!(target instanceof HTMLElement)) return;
+          if (!target.matches("[data-vcr-debug-source]")) return;
+          highlightSource(target.getAttribute("data-vcr-debug-source-id"), true);
+        });
+        bar.addEventListener("mouseout", function(event) {
+          var target = event.target;
+          if (!(target instanceof HTMLElement)) return;
+          if (!target.matches("[data-vcr-debug-source]")) return;
+          highlightSource(target.getAttribute("data-vcr-debug-source-id"), false);
+        });
         if (toggle) {
           toggle.addEventListener("change", function(event) {
             showAll = event.target.checked;
@@ -199,7 +240,17 @@ module ViewComponentReducible
           title.textContent = "event: " + (detail.event_type || "unknown");
           var meta = document.createElement("div");
           meta.className = "vcr-debug-meta";
-          meta.textContent = detail.source ? ("from: " + detail.source) : "";
+          if (detail.source) {
+            meta.appendChild(document.createTextNode("from: "));
+            var source = document.createElement("span");
+            source.className = "vcr-debug-source";
+            source.setAttribute("data-vcr-debug-source", detail.source);
+            if (detail.source_id) {
+              source.setAttribute("data-vcr-debug-source-id", detail.source_id);
+            }
+            source.textContent = detail.source;
+            meta.appendChild(source);
+          }
           header.appendChild(title);
           header.appendChild(meta);
           entry.appendChild(header);
@@ -277,6 +328,10 @@ module ViewComponentReducible
           entry.setAttribute("data-vcr-detail", JSON.stringify(detail));
           renderEntry(entry, detail, showAll);
           log.prepend(entry);
+          var maxEntries = 100;
+          while (log.children.length > maxEntries) {
+            log.removeChild(log.lastElementChild);
+          }
         }
         window.addEventListener("vcr:debug", function(event) {
           addEntry(event.detail || {});
