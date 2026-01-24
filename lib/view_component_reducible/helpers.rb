@@ -21,6 +21,7 @@ module ViewComponentReducible
     # @param type [String]
     # @param payload [Hash, String, nil]
     # @param target_path [String, nil]
+    # @param transition [Boolean]
     # @param url [String]
     # @param button_attrs [Hash]
     # @yield block for the form body (e.g., submit button)
@@ -42,6 +43,11 @@ module ViewComponentReducible
       raise ArgumentError, 'vcr_button_to requires a label or block.' if button_body.nil?
 
       button_attrs = options.fetch(:button_attrs, {})
+      if options.fetch(:transition, false)
+        button_attrs = button_attrs.merge(
+          data: (button_attrs[:data] || {}).merge(vcr_transition: true)
+        )
+      end
       source_label = button_attrs.dig(:data, :vcr_source) || type.to_s
       source_id = Digest::SHA256.hexdigest("#{type}:#{payload}")
       button_attrs = button_attrs.merge(
