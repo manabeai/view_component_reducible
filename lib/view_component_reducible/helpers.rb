@@ -18,15 +18,15 @@ module ViewComponentReducible
 
     # Build a dispatch button form with hidden fields for the VCR endpoint.
     # @param state [String, nil] signed state token (defaults to current component token)
-    # @param msg_type [String]
-    # @param msg_payload [Hash, String]
+    # @param type [String]
+    # @param payload [Hash, String, nil]
     # @param target_path [String, nil]
     # @param url [String]
     # @param button_attrs [Hash]
     # @yield block for the form body (e.g., submit button)
     # @return [String]
-    def vcr_button_to(label = nil, msg_type:, **options, &block)
-      msg_payload = options.fetch(:msg_payload, {})
+    def vcr_button_to(label = nil, type:, payload: nil, **options, &block)
+      msg_payload = payload || {}
       payload = msg_payload.is_a?(String) ? msg_payload : JSON.generate(msg_payload)
       resolved_state = options.fetch(:state, nil) || instance_variable_get(:@vcr_state_token)
       target_path = options.fetch(:target_path, nil)
@@ -42,8 +42,8 @@ module ViewComponentReducible
       raise ArgumentError, 'vcr_button_to requires a label or block.' if button_body.nil?
 
       button_attrs = options.fetch(:button_attrs, {})
-      source_label = button_attrs.dig(:data, :vcr_source) || msg_type.to_s
-      source_id = Digest::SHA256.hexdigest("#{msg_type}:#{payload}")
+      source_label = button_attrs.dig(:data, :vcr_source) || type.to_s
+      source_id = Digest::SHA256.hexdigest("#{type}:#{payload}")
       button_attrs = button_attrs.merge(
         data: (button_attrs[:data] || {}).merge(vcr_source: source_label, vcr_source_id: source_id)
       )
@@ -52,7 +52,7 @@ module ViewComponentReducible
       form_tag(url, method: :post, data: { vcr_form: true, vcr_state_param: state_param }) do
         body = [
           hidden_field_tag(state_param, resolved_state),
-          hidden_field_tag('vcr_msg_type', msg_type),
+          hidden_field_tag('vcr_msg_type', type),
           hidden_field_tag('vcr_msg_payload', payload),
           hidden_field_tag('vcr_target_path', resolved_target),
           content_tag(:button, button_body, { type: 'submit' }.merge(button_attrs))

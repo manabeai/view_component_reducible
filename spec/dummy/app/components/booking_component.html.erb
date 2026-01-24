@@ -30,8 +30,8 @@
               <% day = day_info.day %>
               <%= vcr_button_to(
                 day,
-                msg_type: :select_day,
-                msg_payload: { day: day },
+                type: :select_day,
+                payload: { day: day },
                 button_attrs: {
                   data: { testid: "day-#{day}" },
                   disabled: calendar_day_disabled?(day_info.status),
@@ -68,8 +68,8 @@
               <% Array(state.available_times).each do |time_label| %>
                 <%= vcr_button_to(
                   time_label,
-                  msg_type: :select_time,
-                  msg_payload: { time: time_label },
+                  type: :select_time,
+                  payload: { time: time_label },
                   button_attrs: {
                     data: { testid: "time-#{time_label}" },
                     class: "rounded-xl border px-4 py-3 text-sm font-semibold #{state.selected_time == time_label ? "border-amber-500 bg-white text-amber-800 shadow" : "border-stone-200 bg-white text-stone-700 hover:border-amber-300"}"
@@ -105,8 +105,8 @@
               <% Array(state.available_staff).each do |staff| %>
                 <%= vcr_button_to(
                   staff,
-                  msg_type: :select_staff,
-                  msg_payload: { staff: staff },
+                  type: :select_staff,
+                  payload: { staff: staff },
                   button_attrs: {
                     data: { testid: "staff-#{staff.downcase}" },
                     aria: { pressed: state.selected_staff == staff },

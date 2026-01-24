@@ -76,7 +76,7 @@ end
 <!-- app/components/counter_component.html.erb -->
 <section>
   <p><%= vcr_state.count %></p>
-  <%= vcr_button_to("+", msg_type: :increment) %>
+  <%= vcr_button_to("+", type: :increment) %>
 </section>
 ```
 

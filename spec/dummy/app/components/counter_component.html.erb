@@ -14,9 +14,9 @@
     </div>
 
     <div class="mt-10 flex flex-wrap justify-center gap-3">
-      <%= vcr_button_to("+", msg_type: :increment, button_attrs: { class: "rounded-xl bg-amber-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-amber-500/30 hover:bg-amber-400" }) %>
-      <%= vcr_button_to("-", msg_type: :decrement, button_attrs: { class: "rounded-xl bg-slate-200 px-6 py-3 text-base font-semibold text-slate-800 hover:bg-slate-300" }) %>
-      <%= vcr_button_to("reset", msg_type: :reset, button_attrs: { class: "rounded-xl border border-rose-300 bg-rose-100 px-6 py-3 text-base font-semibold text-rose-700 hover:bg-rose-200" }) %>
+      <%= vcr_button_to("+", type: :increment, button_attrs: { class: "rounded-xl bg-amber-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-amber-500/30 hover:bg-amber-400" }) %>
+      <%= vcr_button_to("-", type: :decrement, button_attrs: { class: "rounded-xl bg-slate-200 px-6 py-3 text-base font-semibold text-slate-800 hover:bg-slate-300" }) %>
+      <%= vcr_button_to("reset", type: :reset, button_attrs: { class: "rounded-xl border border-rose-300 bg-rose-100 px-6 py-3 text-base font-semibold text-rose-700 hover:bg-rose-200" }) %>
     </div>
   </div>
 </section>
