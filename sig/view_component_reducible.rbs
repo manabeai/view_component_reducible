@@ -29,8 +29,8 @@ module ViewComponentReducible
     def vcr_state: () -> untyped
     def state: () -> untyped
     def vcr_dom_id: (path: String) -> String
-    def vcr_button_to: (?String, type: String, ?state: String?, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?transition: bool, ?url: String, ?button_attrs: Hash[untyped, untyped]) { () -> untyped } -> String
-    def vcr_dispatch_form: (?String, type: String, ?state: String?, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?transition: bool, ?url: String, ?button_attrs: Hash[untyped, untyped]) { () -> untyped } -> String
+    def vcr_button_to: (?String, type: String, ?state: String?, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String, ?button_attrs: Hash[untyped, untyped]) { () -> untyped } -> String
+    def vcr_dispatch_form: (?String, type: String, ?state: String?, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String, ?button_attrs: Hash[untyped, untyped]) { () -> untyped } -> String
     def emit: (String | Symbol type, ?Hash[untyped, untyped] payload) -> Proc
     def render_in: (ActionView::Base view_context) { () -> untyped } -> String
 
@@ -114,8 +114,8 @@ module ViewComponentReducible
 
   module Helpers
     def vcr_boundary: (path: String) { () -> untyped } -> String
-    def vcr_button_to: (?state: String?, type: String, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?transition: bool, ?url: String) { () -> untyped } -> String
-    def vcr_dispatch_form: (?state: String?, type: String, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?transition: bool, ?url: String) { () -> untyped } -> String
+    def vcr_button_to: (?state: String?, type: String, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String) { () -> untyped } -> String
+    def vcr_dispatch_form: (?state: String?, type: String, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String) { () -> untyped } -> String
     def vcr_dispatch_script_tag: () -> String
     def vcr_debug_bar_tag: () -> String
   end

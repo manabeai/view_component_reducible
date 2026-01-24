@@ -25,14 +25,13 @@ module ViewComponentReducible
             var submitter = event.submitter || document.activeElement;
             var source = null;
             var sourceId = null;
-            var transitionEnabled = form.getAttribute("data-vcr-transition") === "true";
+            var transitionEnabled = true;
             if (submitter && submitter instanceof HTMLElement) {
               source = submitter.getAttribute("data-vcr-source") ||
                 submitter.getAttribute("aria-label") ||
                 (submitter.textContent || "").trim() ||
                 submitter.tagName.toLowerCase();
               sourceId = submitter.getAttribute("data-vcr-source-id");
-              transitionEnabled = transitionEnabled || submitter.getAttribute("data-vcr-transition") === "true";
             }
             var formData = new FormData(form);
             formData.append("vcr_partial", "1");
