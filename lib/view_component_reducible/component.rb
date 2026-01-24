@@ -57,6 +57,16 @@ module ViewComponentReducible
       helpers.vcr_dispatch_form(...)
     end
 
+    # Build an effect that emits a Msg when executed.
+    # @param type [String, Symbol]
+    # @param payload [Hash]
+    # @return [Proc]
+    def emit(type, payload = {})
+      lambda do |**_kwargs|
+        ViewComponentReducible::Msg.build(type:, payload:)
+      end
+    end
+
     # Render component markup wrapped in a VCR boundary when available.
     # @param view_context [ActionView::Base]
     # @return [String]

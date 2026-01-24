@@ -10,12 +10,6 @@
 - Type signatures sit in `sig/` as `.rbs` files; keep these updated when public APIs change.
 - Gem metadata and packaging rules are in `view_component_reducible.gemspec`; update it when adding files or changing dependencies.
 
-## Build, Test, and Development Commands
-- `bin/setup` — install dependencies via Bundler; run this first.
-- `bundle exec rspec` or `bundle exec rake spec` — execute the full RSpec suite; the default Rake task also runs specs.
-- `bundle exec rake build` — build the gem package; use before release artifacts.
-- `bin/console` — open an IRB session with the gem loaded for quick experiments.
-
 ## Coding Style & Naming Conventions
 - Target Ruby `>= 3.1`; keep `# frozen_string_literal: true` at the top of Ruby files.
 - Use two-space indentation, snake_case for methods/variables, and CamelCase for classes/modules under the `ViewComponentReducible` namespace.

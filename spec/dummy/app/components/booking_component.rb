@@ -18,10 +18,6 @@ class BookingComponent < ViewComponent::Base
     field :available_staff, default: []
   end
 
-  def staff_options
-    BookingMockData::STAFF_OPTIONS
-  end
-
   def reduce(state, msg)
     case msg
     in { type: :select_day, payload: payload }
@@ -53,6 +49,36 @@ class BookingComponent < ViewComponent::Base
     in { type: :staff_selected, payload: payload }
       state.with(selected_staff: payload.staff)
     end
+  end
+
+  private
+
+  def build_times_effect(day)
+    times = BookingMockData.available_times(day: day)
+
+    emit("TimesLoaded", times: times)
+  end
+
+  def build_staff_effect(time)
+    staff = BookingMockData.available_staff(options: BookingMockData::STAFF_OPTIONS, time: time)
+
+    emit("StaffLoaded", staff: staff, time: time)
+  end
+
+  def build_select_staff_effect(staff)
+    emit("StaffSelected", staff: staff)
+  end
+
+  def build_calendar_effect
+    days = BookingMockData.calendar_days
+
+    emit("CalendarLoaded", days: days)
+  end
+
+  public
+
+  def staff_options
+    BookingMockData::STAFF_OPTIONS
   end
 
   def calendar_day_records
@@ -99,38 +125,6 @@ class BookingComponent < ViewComponent::Base
 
   def calendar_day_disabled?(status)
     status == "cross"
-  end
-
-  private
-
-  def build_times_effect(day)
-    times = BookingMockData.available_times(day: day)
-
-    lambda do |**_kwargs|
-      ViewComponentReducible::Msg.build(type: "TimesLoaded", payload: { times: times })
-    end
-  end
-
-  def build_staff_effect(time)
-    staff = BookingMockData.available_staff(options: BookingMockData::STAFF_OPTIONS, time: time)
-
-    lambda do |**_kwargs|
-      ViewComponentReducible::Msg.build(type: "StaffLoaded", payload: { staff: staff, time: time })
-    end
-  end
-
-  def build_select_staff_effect(staff)
-    lambda do |**_kwargs|
-      ViewComponentReducible::Msg.build(type: "StaffSelected", payload: { staff: staff })
-    end
-  end
-
-  def build_calendar_effect
-    days = BookingMockData.calendar_days
-
-    lambda do |**_kwargs|
-      ViewComponentReducible::Msg.build(type: "CalendarLoaded", payload: { days: days })
-    end
   end
 end
 
