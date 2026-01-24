@@ -25,6 +25,7 @@
 
   <body>
     <%= yield %>
+    <%= vcr_debug_bar_tag %>
     <%= vcr_dispatch_script_tag %>
   </body>
 </html>

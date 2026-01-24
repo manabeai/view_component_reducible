@@ -6,6 +6,7 @@
 /spec/reports/
 tmp/
 *.log
+dump.rdb
 
 # rspec failure tracking
 .rspec_status

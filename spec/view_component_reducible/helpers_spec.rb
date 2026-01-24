@@ -70,4 +70,15 @@ RSpec.describe ViewComponentReducible::Helpers do
     expect(html).to include('name="vcr_target_path"')
     expect(html).to include('value="root/envelope"')
   end
+
+  it 'renders the debug bar markup' do
+    view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
+    view.extend(described_class)
+
+    html = view.vcr_debug_bar_tag
+
+    expect(html).to include('data-vcr-debug-bar')
+    expect(html).to include('data-vcr-debug-log')
+    expect(html).to include('vcr:debug')
+  end
 end
