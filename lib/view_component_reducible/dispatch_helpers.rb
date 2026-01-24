@@ -10,6 +10,10 @@ module ViewComponentReducible
         (function() {
           if (window.__vcrDispatchInstalled) return;
           window.__vcrDispatchInstalled = true;
+          function vcrEscapeSelector(value) {
+            if (window.CSS && CSS.escape) return CSS.escape(value);
+            return String(value).replace(/["\\]/g, '\\$&');
+          }
           document.addEventListener("input", function(event) {
             var input = event.target;
             if (!(input instanceof HTMLInputElement)) return;
@@ -54,6 +58,15 @@ module ViewComponentReducible
             var formData = new FormData(form);
             formData.append("vcr_partial", "1");
             var eventType = formData.get("vcr_msg_type");
+            var activeElement = document.activeElement;
+            var focusInfo = null;
+            if (activeElement && activeElement.matches && activeElement.matches("[data-vcr-live-input]")) {
+              focusInfo = {
+                name: activeElement.name,
+                selectionStart: activeElement.selectionStart,
+                selectionEnd: activeElement.selectionEnd
+              };
+            }
             var headers = { "X-Requested-With": "XMLHttpRequest" };
             if (window.__vcrDebugEnabled) headers["X-VCR-Debug"] = "1";
             fetch(form.action, {
@@ -76,6 +89,19 @@ module ViewComponentReducible
                 var current = document.querySelector('[data-vcr-path="' + targetPath + '"]');
                 if (newNode && current) {
                   current.replaceWith(newNode);
+                }
+                if (focusInfo && focusInfo.name) {
+                  var boundary = document.querySelector('[data-vcr-path="' + targetPath + '"]') || document;
+                  var selector = '[data-vcr-live-input][name="' + vcrEscapeSelector(focusInfo.name) + '"]';
+                  var nextInput = boundary.querySelector(selector);
+                  if (nextInput) {
+                    nextInput.focus();
+                    if (typeof nextInput.setSelectionRange === "function") {
+                      var start = focusInfo.selectionStart || 0;
+                      var end = focusInfo.selectionEnd || start;
+                      nextInput.setSelectionRange(start, end);
+                    }
+                  }
                 }
                 if (payload.state) {
                   var boundary = document.querySelector('[data-vcr-path="' + targetPath + '"]');

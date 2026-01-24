@@ -31,6 +31,7 @@ module ViewComponentReducible
     def vcr_dom_id: (path: String) -> String
     def vcr_button_to: (?String, type: String, ?state: String?, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String, ?button_attrs: Hash[untyped, untyped]) { () -> untyped } -> String
     def vcr_dispatch_form: (?String, type: String, ?state: String?, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String, ?button_attrs: Hash[untyped, untyped]) { () -> untyped } -> String
+    def vcr_live_input: ((String | Symbol) name, type: String | Symbol, ?value: String?, ?placeholder: String?) -> String
     def emit: (String | Symbol type, ?Hash[untyped, untyped] payload) -> Proc
     def render_in: (ActionView::Base view_context) { () -> untyped } -> String
 

@@ -60,6 +60,12 @@ module ViewComponentReducible
       helpers.vcr_button_to(...)
     end
 
+    # Build a live input from the component context.
+    # @return [String]
+    def vcr_live_input(...)
+      helpers.vcr_live_input(...)
+    end
+
     # Backward compatibility helper for dispatch forms.
     # @return [String]
     def vcr_dispatch_form(...)
