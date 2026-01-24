@@ -13,3 +13,74 @@ Everything else is **reducible** to ViewComponent—no extra endpoints, controll
 
 view_component_reducible brings reducer-based state transitions
 to Rails ViewComponent, inspired by TEA (The Elm Architecture).
+
+## Quick Start
+
+### 1. Install
+
+```rb
+# Gemfile
+gem "view_component_reducible"
+```
+
+```sh
+bundle install
+```
+
+### 2. Mount the endpoint
+
+```rb
+# config/routes.rb
+mount ViewComponentReducible::Engine, at: "/vcr"
+```
+
+### 3. Configure adapter + register component
+
+```rb
+# config/initializers/view_component_reducible.rb
+ViewComponentReducible.configure do |config|
+  config.adapter = ViewComponentReducible::Adapter::HiddenField
+  config.secret = Rails.application.secret_key_base
+end
+
+Rails.application.config.to_prepare do
+  ViewComponentReducible.register(CounterComponent)
+end
+```
+
+### 4. Create component
+
+```rb
+# app/components/counter_component.rb
+class CounterComponent < ViewComponent::Base
+  include ViewComponentReducible::Component
+
+  state do
+    field :count, default: 0
+  end
+
+  def reduce(state, msg)
+    case msg
+    in { type: :increment }
+      state.with(count: state.count + 1)
+    else
+      state
+    end
+  end
+end
+```
+
+```erb
+<!-- app/components/counter_component.html.erb -->
+<section>
+  <p><%= vcr_state.count %></p>
+  <%= vcr_button_to("+", msg_type: :increment) %>
+</section>
+```
+
+### 5. Enable partial updates
+
+```erb
+<!-- app/views/layouts/application.html.erb -->
+<%= vcr_dispatch_script_tag %>
+```

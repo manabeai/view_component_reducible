@@ -90,4 +90,11 @@ test('booking flow reveals times and staff', async ({ page }) => {
   await expect(staffButtons.first()).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByTestId('selected-staff')).toHaveText(selectedStaff);
   await expect(page.getByTestId('booking-button')).toBeVisible();
+
+  // 日付を選び直すとスタッフと時間がリセットされることを確認
+  await page.getByTestId('day-16').click();
+  await expect(page.getByTestId('selected-day')).toHaveText('16');
+  await expect(page.getByTestId('selected-time')).toHaveText('-');
+  await expect(page.getByTestId('selected-staff')).toHaveText('-');
+  await expect(page.getByTestId('booking-button')).toHaveCount(0);
 });
