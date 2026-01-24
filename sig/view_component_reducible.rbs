@@ -116,6 +116,7 @@ module ViewComponentReducible
     def vcr_boundary: (path: String) { () -> untyped } -> String
     def vcr_button_to: (?state: String?, type: String, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String) { () -> untyped } -> String
     def vcr_dispatch_form: (?state: String?, type: String, ?payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String) { () -> untyped } -> String
+    def vcr_live_input: ((String | Symbol) name, type: String | Symbol, ?value: String?, ?placeholder: String?) -> String
     def vcr_dispatch_script_tag: () -> String
     def vcr_debug_bar_tag: () -> String
   end

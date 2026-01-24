@@ -11,22 +11,18 @@
 
   <div class="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-      <label class="text-sm font-semibold text-slate-700" for="incremental-search-input">Search</label>
-      <input
-        id="incremental-search-input"
-        class="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 shadow-sm"
-        type="text"
-        placeholder="Try typing to filter..."
-        value="<%= state.query %>"
-        readonly
-      />
-      <p class="mt-2 text-xs text-slate-500">Buttons below simulate incremental updates for now.</p>
+      <label class="text-sm font-semibold text-slate-700" for="vcr-live-input-query">Search</label>
+      <div class="mt-3">
+        <%= vcr_live_input(
+          "query",
+          type: :set_query,
+          value: state.query,
+          placeholder: "Try typing to filter..."
+        ) %>
+      </div>
+      <p class="mt-2 text-xs text-slate-500">入力するたびに結果が更新されます。</p>
 
       <div class="mt-5 flex flex-wrap gap-2">
-        <%= vcr_button_to("ra", type: :set_query, payload: { query: "ra" }, button_attrs: { class: "rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white" }) %>
-        <%= vcr_button_to("comp", type: :set_query, payload: { query: "comp" }, button_attrs: { class: "rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white" }) %>
-        <%= vcr_button_to("state", type: :set_query, payload: { query: "state" }, button_attrs: { class: "rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white" }) %>
-        <%= vcr_button_to("view", type: :set_query, payload: { query: "view" }, button_attrs: { class: "rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white" }) %>
         <%= vcr_button_to("clear", type: :reset, button_attrs: { class: "rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700" }) %>
       </div>
     </div>

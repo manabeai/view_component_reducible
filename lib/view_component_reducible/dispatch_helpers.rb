@@ -10,6 +10,32 @@ module ViewComponentReducible
         (function() {
           if (window.__vcrDispatchInstalled) return;
           window.__vcrDispatchInstalled = true;
+          document.addEventListener("input", function(event) {
+            var input = event.target;
+            if (!(input instanceof HTMLInputElement)) return;
+            if (!input.matches("[data-vcr-live-input]")) return;
+            var form = input.closest("form[data-vcr-form][data-vcr-live]");
+            if (!form) return;
+            var payloadField = form.querySelector('input[name="vcr_msg_payload"]');
+            if (payloadField) {
+              var payloadKey = payloadField.dataset.vcrPayloadKey || input.name;
+              var payloadValue = input.value || "";
+              payloadField.value = JSON.stringify({ [payloadKey]: payloadValue });
+            }
+            var submitter = form.querySelector("[data-vcr-live-submit]");
+            if (submitter) {
+              submitter.click();
+            } else if (form.requestSubmit) {
+              form.requestSubmit();
+            } else {
+              var fallback = document.createElement("button");
+              fallback.type = "submit";
+              fallback.style.display = "none";
+              form.appendChild(fallback);
+              fallback.click();
+              fallback.remove();
+            }
+          });
           document.addEventListener("submit", function(event) {
             var form = event.target;
             if (!(form instanceof HTMLFormElement)) return;
