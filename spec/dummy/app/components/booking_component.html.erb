@@ -20,7 +20,8 @@
           </div>
 
           <div class="grid grid-cols-4 gap-2 sm:grid-cols-7">
-            <% (1..30).each do |day| %>
+            <% calendar_day_records.each do |day_info| %>
+              <% day = day_info.day %>
               <%= vcr_button_to(
                 day,
                 state: vcr_state_token,
@@ -28,9 +29,14 @@
                 msg_payload: { day: day },
                 button_attrs: {
                   data: { testid: "day-#{day}" },
-                  class: "rounded-xl border px-3 py-2 text-sm font-semibold #{vcr_state.selected_day == day ? "border-amber-500 bg-amber-100 text-amber-800" : "border-stone-200 bg-stone-50 text-stone-700 hover:bg-amber-50"}"
+                  disabled: calendar_day_disabled?(day_info.status),
+                  class: calendar_day_button_class(day, day_info.status)
                 }
-              ) %>
+              ) do %>
+                <span class="text-[10px] text-stone-500"><%= day_info.date %> (<%= day_info.weekday %>)</span>
+                <span class="text-base font-bold"><%= day %></span>
+                <span class="text-[11px] <%= calendar_status_class(day_info.status) %>"><%= calendar_status_label(day_info.status) %></span>
+              <% end %>
             <% end %>
           </div>
         </section>
