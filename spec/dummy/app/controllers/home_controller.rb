@@ -9,4 +9,7 @@ class HomeController < ApplicationController
 
   def effects
   end
+
+  def incremental_search
+  end
 end

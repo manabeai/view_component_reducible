@@ -213,3 +213,19 @@ test('debug bar collapses long payload', async ({ page }) => {
   await toggle.click();
   await expect(toggle).toHaveText('Expand');
 });
+
+test('incremental search updates results as you type', async ({ page }) => {
+  // インクリメンタルサーチ画面へ遷移
+  await page.goto('/incremental_search');
+
+  const input = page.getByLabel('Search');
+  await expect(input).toHaveValue('');
+
+  // 本来は入力に反応して結果が減るはず（現状はボタンのみ対応）
+  await input.fill('state');
+
+  const matchCount = page.getByText('Matches').locator('..').locator('span');
+  await expect(matchCount).toHaveText('1');
+  await expect(page.getByText('State')).toBeVisible();
+  await expect(page.getByText('Runtime')).toHaveCount(0);
+});
