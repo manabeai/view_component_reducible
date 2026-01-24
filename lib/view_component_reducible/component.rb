@@ -29,13 +29,13 @@ module ViewComponentReducible
       kwargs.empty? ? super() : super(**kwargs)
     end
 
-    # Build state hash for rendering from the envelope.
-    # @return [Hash{String=>Object}]
+    # Build state data for rendering from the envelope.
+    # @return [Data]
     def vcr_state
       return {} if vcr_envelope.nil?
 
       schema = self.class.vcr_state_schema
-      schema.build(vcr_envelope['data'])
+      schema.build_data(vcr_envelope['data'])
     end
 
     # Optional DOM target id for updates.

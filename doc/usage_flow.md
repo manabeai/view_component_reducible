@@ -47,8 +47,8 @@ with a `data-vcr-path` boundary based on the envelope path.
 
 ```erb
 <div>
-  <p>Name: <%= vcr_state["name"] %></p>
-  <p>Loading: <%= vcr_state["loading"] %></p>
+  <p>Name: <%= vcr_state.name %></p>
+  <p>Loading: <%= vcr_state.loading %></p>
 </div>
 ```
 

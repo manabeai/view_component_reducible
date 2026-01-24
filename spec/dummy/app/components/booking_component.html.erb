@@ -16,7 +16,7 @@
             <button
               type="submit"
               data-testid="day-<%= day %>"
-              class="rounded-xl border px-3 py-2 text-sm font-semibold <%= vcr_state["selected_day"] == day ? "border-amber-500 bg-amber-100 text-amber-800" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-amber-50" %>">
+              class="rounded-xl border px-3 py-2 text-sm font-semibold <%= vcr_state.selected_day == day ? "border-amber-500 bg-amber-100 text-amber-800" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-amber-50" %>">
               <%= day %>
             </button>
           <% end %>
@@ -24,12 +24,12 @@
       </div>
     </div>
 
-      <% if vcr_state["selected_day"] %>
+      <% if vcr_state.selected_day %>
         <div class="mt-10">
           <h2 class="text-xs uppercase tracking-widest text-amber-700">Available Times</h2>
-          <p class="mt-1 text-sm text-slate-600">Day <%= vcr_state["selected_day"] %></p>
+          <p class="mt-1 text-sm text-slate-600">Day <%= vcr_state.selected_day %></p>
           <div class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
-            <% Array(vcr_state["available_times"]).each do |time_label| %>
+            <% Array(vcr_state.available_times).each do |time_label| %>
               <%= vcr_button_to(
                 state: vcr_state_token,
                 msg_type: "SelectTime",
@@ -38,7 +38,7 @@
                 <button
                   type="submit"
                   data-testid="time-<%= time_label %>"
-                  class="rounded-xl border px-4 py-3 text-sm font-semibold <%= vcr_state["selected_time"] == time_label ? "border-amber-500 bg-white text-amber-800 shadow" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300" %>">
+                  class="rounded-xl border px-4 py-3 text-sm font-semibold <%= vcr_state.selected_time == time_label ? "border-amber-500 bg-white text-amber-800 shadow" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300" %>">
                   <%= time_label %>
                 </button>
               <% end %>
@@ -47,12 +47,12 @@
         </div>
       <% end %>
 
-      <% if vcr_state["selected_time"] %>
+      <% if vcr_state.selected_time %>
         <div class="mt-10" data-testid="staff-list">
           <h2 class="text-xs uppercase tracking-widest text-amber-700">Available Staff</h2>
-          <p class="mt-1 text-sm text-slate-600">Time <%= vcr_state["selected_time"] %></p>
+          <p class="mt-1 text-sm text-slate-600">Time <%= vcr_state.selected_time %></p>
           <div class="mt-4 grid gap-3 sm:grid-cols-3">
-            <% Array(vcr_state["available_staff"]).each do |staff| %>
+            <% Array(vcr_state.available_staff).each do |staff| %>
               <%= vcr_button_to(
                 state: vcr_state_token,
                 msg_type: "SelectStaff",
@@ -61,14 +61,14 @@
                 <button
                   type="submit"
                   data-testid="staff-<%= staff.downcase %>"
-                  aria-pressed="<%= vcr_state["selected_staff"] == staff %>"
-                  class="rounded-xl border px-4 py-3 text-sm font-semibold <%= vcr_state["selected_staff"] == staff ? "border-amber-500 bg-amber-50 text-amber-800" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300" %>">
+                  aria-pressed="<%= vcr_state.selected_staff == staff %>"
+                  class="rounded-xl border px-4 py-3 text-sm font-semibold <%= vcr_state.selected_staff == staff ? "border-amber-500 bg-amber-50 text-amber-800" : "border-slate-200 bg-white text-slate-700 hover:border-amber-300" %>">
                   <%= staff %>
                 </button>
               <% end %>
             <% end %>
           </div>
-          <% if vcr_state["selected_staff"] %>
+          <% if vcr_state.selected_staff %>
             <button
               type="button"
               data-testid="booking-button"
@@ -85,15 +85,15 @@
       <dl class="mt-4 space-y-3 text-sm text-slate-700">
         <div class="flex items-center justify-between">
           <dt class="font-medium text-slate-500">Day</dt>
-          <dd class="font-semibold" data-testid="selected-day"><%= vcr_state["selected_day"] || "-" %></dd>
+          <dd class="font-semibold" data-testid="selected-day"><%= vcr_state.selected_day || "-" %></dd>
         </div>
         <div class="flex items-center justify-between">
           <dt class="font-medium text-slate-500">Time</dt>
-          <dd class="font-semibold" data-testid="selected-time"><%= vcr_state["selected_time"] || "-" %></dd>
+          <dd class="font-semibold" data-testid="selected-time"><%= vcr_state.selected_time || "-" %></dd>
         </div>
         <div class="flex items-center justify-between">
           <dt class="font-medium text-slate-500">Staff</dt>
-          <dd class="font-semibold" data-testid="selected-staff"><%= vcr_state["selected_staff"] || "-" %></dd>
+          <dd class="font-semibold" data-testid="selected-staff"><%= vcr_state.selected_staff || "-" %></dd>
         </div>
       </dl>
     </aside>

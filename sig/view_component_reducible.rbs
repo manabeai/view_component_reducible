@@ -26,7 +26,7 @@ module ViewComponentReducible
     def self.included: (untyped base) -> void
     def vcr_envelope: () -> Hash[untyped, untyped]?
     def vcr_state_token: () -> String?
-    def vcr_state: () -> Hash[String, untyped]
+    def vcr_state: () -> untyped
     def vcr_dom_id: (path: String) -> String
     def vcr_button_to: (?state: String?, msg_type: String, ?msg_payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String) { () -> untyped } -> String
     def vcr_dispatch_form: (?state: String?, msg_type: String, ?msg_payload: Hash[untyped, untyped] | String, ?target_path: String?, ?url: String) { () -> untyped } -> String
