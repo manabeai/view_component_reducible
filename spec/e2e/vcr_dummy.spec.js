@@ -213,3 +213,25 @@ test('debug bar collapses long payload', async ({ page }) => {
   await toggle.click();
   await expect(toggle).toHaveText('Expand');
 });
+
+test('debug bar chain tooltip shows payload and state', async ({ page }) => {
+  await page.setViewportSize({ width: 1200, height: 800 });
+  await page.goto('/effects?debug=1');
+
+  const debugBar = page.locator('[data-vcr-debug-bar]');
+  await expect(debugBar).toBeVisible();
+
+  await page.getByTestId('day-15').click();
+
+  const debugEntry = debugBar.locator('[data-vcr-debug-entry]').first();
+  await expect(debugEntry).toBeVisible();
+
+  const chainNode = debugEntry.locator('.vcr-debug-chain-node').first();
+  await expect(chainNode).toBeVisible();
+  await chainNode.hover();
+
+  const tooltip = chainNode.locator('.vcr-debug-chain-tooltip');
+  await expect(tooltip).toBeVisible();
+  await expect(tooltip).toContainText('payload:');
+  await expect(tooltip).toContainText('state:');
+});

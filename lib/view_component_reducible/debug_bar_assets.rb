@@ -115,6 +115,60 @@ module ViewComponentReducible
         font-size: 9px;
         letter-spacing: 0.12em;
       }
+      #vcr-debug-bar .vcr-debug-chain {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+      #vcr-debug-bar .vcr-debug-chain-node {
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 10px;
+        font-weight: 700;
+        color: #f8fafc;
+        position: relative;
+      }
+      #vcr-debug-bar .vcr-debug-chain-node-trigger {
+        border-color: #38bdf8;
+        color: #7dd3fc;
+      }
+      #vcr-debug-bar .vcr-debug-chain-node-effect {
+        border-color: #a3e635;
+        color: #bef264;
+      }
+      #vcr-debug-bar .vcr-debug-chain-arrow {
+        color: #38bdf8;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+      }
+      #vcr-debug-bar .vcr-debug-chain-tooltip {
+        position: absolute;
+        top: 120%;
+        left: 0;
+        min-width: 200px;
+        max-width: 260px;
+        padding: 6px 8px;
+        border-radius: 8px;
+        background: #111827;
+        border: 1px solid #334155;
+        color: #e2e8f0;
+        font-size: 10px;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 120ms ease, transform 120ms ease;
+        pointer-events: none;
+        z-index: 10;
+      }
+      #vcr-debug-bar .vcr-debug-chain-node:hover .vcr-debug-chain-tooltip {
+        opacity: 1;
+        transform: translateY(0);
+      }
       #vcr-debug-bar .vcr-debug-key {
         display: inline-flex;
         border: 1px solid #334155;
@@ -293,6 +347,32 @@ module ViewComponentReducible
           if (text.length <= limit) return text;
           return text.slice(0, limit) + "...";
         }
+        function buildChainTooltip(stepDetail, fallbackType) {
+          var lines = [];
+          var eventType = stepDetail.msg_type || fallbackType || "unknown";
+          lines.push("event: " + eventType);
+          if (stepDetail.payload !== undefined) {
+            lines.push("payload: " + truncateText(formatValue(stepDetail.payload), 140));
+          }
+          var keys = Array.isArray(stepDetail.changed_keys) ? stepDetail.changed_keys : [];
+          if (keys.length) {
+            lines.push("changed: " + keys.join(", "));
+            var changes = stepDetail.changes || {};
+            keys.slice(0, 3).forEach(function(key) {
+              var change = changes[key];
+              if (!change) return;
+              lines.push(
+                key + ": " + formatValue(change.from) + " -> " + formatValue(change.to)
+              );
+            });
+          } else {
+            lines.push("changed: (none)");
+          }
+          if (stepDetail.state !== undefined) {
+            lines.push("state: " + truncateText(formatValue(stepDetail.state), 180));
+          }
+          return lines.join("\\n");
+        }
         function buildChangeRow(key, change, unchangedValue) {
           var row = document.createElement("div");
           row.className = "vcr-debug-change";
@@ -389,6 +469,31 @@ module ViewComponentReducible
             chainLabel.className = "vcr-debug-meta";
             chainLabel.textContent = "chain: " + detail.chain.join(" -> ");
             entry.appendChild(chainLabel);
+            var chainGraph = document.createElement("div");
+            chainGraph.className = "vcr-debug-chain";
+            var stepDetails = Array.isArray(detail.chain_steps) ? detail.chain_steps : [];
+            detail.chain.forEach(function(step, index) {
+              var node = document.createElement("span");
+              node.className = "vcr-debug-chain-node";
+              if (index === 0) {
+                node.classList.add("vcr-debug-chain-node-trigger");
+              } else {
+                node.classList.add("vcr-debug-chain-node-effect");
+              }
+              node.textContent = step;
+              var tooltip = document.createElement("div");
+              tooltip.className = "vcr-debug-chain-tooltip";
+              tooltip.textContent = buildChainTooltip(stepDetails[index] || {}, step);
+              node.appendChild(tooltip);
+              chainGraph.appendChild(node);
+              if (index < detail.chain.length - 1) {
+                var arrow = document.createElement("span");
+                arrow.className = "vcr-debug-chain-arrow";
+                arrow.textContent = "->";
+                chainGraph.appendChild(arrow);
+              }
+            });
+            entry.appendChild(chainGraph);
           }
           var keys = Array.isArray(detail.changed_keys) ? detail.changed_keys : [];
           if (keys.length) {

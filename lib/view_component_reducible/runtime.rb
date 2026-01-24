@@ -4,7 +4,7 @@ module ViewComponentReducible
   # Core runtime for dispatching messages and rendering components.
   class Runtime
     MAX_EFFECT_STEPS = 8
-    attr_reader :debug_chain
+    attr_reader :debug_chain, :debug_chain_steps
 
     # @param envelope [Hash]
     # @param msg [ViewComponentReducible::Msg]
@@ -13,6 +13,7 @@ module ViewComponentReducible
     # @return [Array<Hash, String>] [new_envelope, html]
     def call(envelope:, msg:, target_path:, controller:)
       @debug_chain = [msg.type.to_s]
+      @debug_chain_steps = []
       root_klass = ViewComponentReducible.registry.fetch(envelope['root'])
       new_env = deep_dup(envelope)
 
@@ -46,6 +47,7 @@ module ViewComponentReducible
     end
 
     def apply_reducer(component_klass, env, msg, controller)
+      before_state = env['data'] || {}
       component = component_klass.new(vcr_envelope: env)
       schema = component_klass.vcr_state_schema
       state = schema.build_data(env['data'])
@@ -60,6 +62,7 @@ module ViewComponentReducible
                                          [state_only, effects]
                                        end
       env['data'] = normalize_state(reduced_state, schema)
+      record_chain_step(msg, before_state, env['data'])
       effects = normalize_effects(reducer_effects) + normalize_effects(build_effects(component, schema, env['data'],
                                                                                      msg))
 
@@ -82,6 +85,7 @@ module ViewComponentReducible
 
         @debug_chain << follow_msg.type.to_s if @debug_chain
 
+        before_state = env['data'] || {}
         component = component_klass.new(vcr_envelope: env)
         schema = component_klass.vcr_state_schema
         state = schema.build_data(env['data'])
@@ -96,6 +100,7 @@ module ViewComponentReducible
                                            [state_only, effects]
                                          end
         env['data'] = normalize_state(reduced_state, schema)
+        record_chain_step(follow_msg, before_state, env['data'])
         new_effects = normalize_effects(reducer_effects) + normalize_effects(build_effects(component, schema,
                                                                                            env['data'], follow_msg))
         effects_queue.concat(new_effects)
@@ -146,6 +151,39 @@ module ViewComponentReducible
 
     def deep_dup(obj)
       Marshal.load(Marshal.dump(obj))
+    end
+
+    def record_chain_step(msg, before_state, after_state)
+      return if @debug_chain_steps.nil?
+
+      changes = diff_state(before_state, after_state)
+      payload = normalize_debug_payload(msg.payload)
+      @debug_chain_steps << {
+        'msg_type' => msg.type.to_s,
+        **(payload.nil? ? {} : { 'payload' => payload }),
+        'changes' => changes,
+        'changed_keys' => changes.keys,
+        'state' => after_state || {}
+      }
+    end
+
+    def diff_state(before_state, after_state)
+      before_state ||= {}
+      after_state ||= {}
+      keys = (before_state.keys + after_state.keys).uniq
+      keys.each_with_object({}) do |key, acc|
+        before_value = before_state[key]
+        after_value = after_state[key]
+        next if before_value == after_value
+
+        acc[key] = { 'from' => before_value, 'to' => after_value }
+      end
+    end
+
+    def normalize_debug_payload(payload)
+      return if payload.is_a?(ViewComponentReducible::Msg::Payload::Empty)
+
+      payload.respond_to?(:to_h) ? payload.to_h : payload
     end
   end
 end

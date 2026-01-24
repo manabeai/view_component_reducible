@@ -34,7 +34,13 @@ module ViewComponentReducible
 
       signed = adapter.dump(new_envelope, request:)
       if debug_enabled?
-        debug = debug_payload(envelope, new_envelope, msg, target_path, runtime.debug_chain)
+        debug = debug_payload(
+          envelope,
+          new_envelope,
+          msg,
+          target_path,
+          { chain: runtime.debug_chain, chain_steps: runtime.debug_chain_steps }
+        )
         response.set_header('X-VCR-Debug', JSON.generate(debug))
       end
       if params['vcr_partial'] == '1'
@@ -54,7 +60,7 @@ module ViewComponentReducible
       request.headers['X-VCR-Debug'] == '1'
     end
 
-    def debug_payload(envelope, new_envelope, msg, target_path, chain)
+    def debug_payload(envelope, new_envelope, msg, target_path, debug_context)
       before_env = find_env(envelope, target_path)
       after_env = find_env(new_envelope, target_path)
       changes = diff_state(before_env.fetch('data', {}), after_env.fetch('data', {}))
@@ -63,7 +69,8 @@ module ViewComponentReducible
         'path' => target_path,
         'msg_type' => msg.type.to_s,
         **(payload.nil? ? {} : { 'payload' => payload }),
-        'chain' => Array(chain),
+        'chain' => Array(debug_context[:chain]),
+        'chain_steps' => Array(debug_context[:chain_steps]),
         'changed_keys' => changes.keys,
         'changes' => changes,
         'state' => after_env.fetch('data', {})
