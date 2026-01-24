@@ -13,6 +13,8 @@ mount ViewComponentReducible::Engine => "/vcr"
 
 ## 2. Define state in the component
 
+### 2-1. Simple reducer (no effects)
+
 Include the mixin and declare state with the DSL.
 
 ```ruby
@@ -36,6 +38,36 @@ class MyFormComponent < ViewComponent::Base
     else
       state
     end
+  end
+end
+```
+
+### 2-2. Reducer with effects (emit)
+
+Use effects to emit follow-up messages (often used to trigger external side effects).
+
+```ruby
+class MyFormComponent < ViewComponent::Base
+  include ViewComponentReducible::Component
+
+  state do
+    field :loading, default: false
+  end
+
+  def reduce(state, msg)
+    case msg
+    in { type: :submit_form, payload: payload }
+      effect = build_save_effect(payload)
+      [state.with(loading: true), effect]
+    else
+      state
+    end
+  end
+
+  private
+
+  def build_save_effect(payload)
+    emit(:perform_save, payload: payload)
   end
 end
 ```
@@ -81,6 +113,7 @@ Option B: write the hidden fields directly.
 - `Msg.from_params` builds the message.
 - `Runtime#call` routes to the target component by `vcr_target_path`.
 - The component `reduce` runs and updates state.
+- Effects can emit follow-up messages via `emit` (returns a `Msg` or callable) and run after state updates.
 - The component is re-rendered and the new signed state is injected into the response.
 - The injected meta tag + inline script refreshes `input[name="vcr_state"]`.
 

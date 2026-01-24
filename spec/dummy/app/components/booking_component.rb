@@ -60,23 +60,23 @@ class BookingComponent < ViewComponent::Base
   def build_times_effect(day)
     times = BookingMockData.available_times(day: day)
 
-    emit("TimesLoaded", times: times)
+    emit(:times_loaded, times: times)
   end
 
   def build_staff_effect(time)
     staff = BookingMockData.available_staff(options: BookingMockData::STAFF_OPTIONS, time: time)
 
-    emit("StaffLoaded", staff: staff, time: time)
+    emit(:staff_loaded, staff: staff, time: time)
   end
 
   def build_select_staff_effect(staff)
-    emit("StaffSelected", staff: staff)
+    emit(:staff_selected, staff: staff)
   end
 
   def build_calendar_effect
     days = BookingMockData.calendar_days
 
-    emit("CalendarLoaded", days: days)
+    emit(:calendar_loaded, days: days)
   end
 
   public
