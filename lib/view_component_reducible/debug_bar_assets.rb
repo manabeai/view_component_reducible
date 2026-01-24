@@ -112,6 +112,9 @@ module ViewComponentReducible
         color: #f87171;
         font-weight: 700;
       }
+      #vcr-debug-bar .vcr-debug-change .vcr-debug-to {
+        color: #a3e635;
+      }
       #vcr-debug-bar .vcr-debug-footer {
         border-top: 1px solid #1e293b;
         padding: 10px 16px;
