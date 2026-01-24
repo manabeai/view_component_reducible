@@ -68,13 +68,6 @@ module ViewComponentReducible
         flex-direction: column;
         gap: 10px;
       }
-      #vcr-debug-bar .vcr-debug-change.vcr-debug-change-highlight {
-        outline: 1px solid #38bdf8;
-        outline-offset: 2px;
-        border-radius: 6px;
-        background: rgba(56, 189, 248, 0.08);
-        padding: 2px 4px;
-      }
       #vcr-debug-bar .vcr-debug-empty {
         color: #64748b;
         font-size: 12px;
@@ -234,41 +227,28 @@ module ViewComponentReducible
             }
           });
         }
-        bar.addEventListener("mouseover", function(event) {
-          var target = event.target;
-          if (!(target instanceof HTMLElement)) return;
-          if (!target.matches("[data-vcr-debug-source]")) return;
-          highlightSource(target.getAttribute("data-vcr-debug-source-id"), true);
+        function bindHover(selector, onHover) {
+          bar.addEventListener("mouseover", function(event) {
+            var target = event.target;
+            if (!(target instanceof HTMLElement)) return;
+            if (!target.matches(selector)) return;
+            onHover(target, true);
+          });
+          bar.addEventListener("mouseout", function(event) {
+            var target = event.target;
+            if (!(target instanceof HTMLElement)) return;
+            if (!target.matches(selector)) return;
+            onHover(target, false);
+          });
+        }
+        bindHover("[data-vcr-debug-source]", function(target, active) {
+          highlightSource(target.getAttribute("data-vcr-debug-source-id"), active);
         });
-        bar.addEventListener("mouseout", function(event) {
-          var target = event.target;
-          if (!(target instanceof HTMLElement)) return;
-          if (!target.matches("[data-vcr-debug-source]")) return;
-          highlightSource(target.getAttribute("data-vcr-debug-source-id"), false);
+        bindHover("[data-vcr-debug-path]", function(target, active) {
+          highlightPath(target.getAttribute("data-vcr-debug-path"), active);
         });
-        bar.addEventListener("mouseover", function(event) {
-          var target = event.target;
-          if (!(target instanceof HTMLElement)) return;
-          if (!target.matches("[data-vcr-debug-path]")) return;
-          highlightPath(target.getAttribute("data-vcr-debug-path"), true);
-        });
-        bar.addEventListener("mouseout", function(event) {
-          var target = event.target;
-          if (!(target instanceof HTMLElement)) return;
-          if (!target.matches("[data-vcr-debug-path]")) return;
-          highlightPath(target.getAttribute("data-vcr-debug-path"), false);
-        });
-        bar.addEventListener("mouseover", function(event) {
-          var target = event.target;
-          if (!(target instanceof HTMLElement)) return;
-          if (!target.matches("[data-vcr-debug-key]")) return;
-          highlightChange(target.closest("[data-vcr-debug-entry]"), target.getAttribute("data-vcr-debug-key"), true);
-        });
-        bar.addEventListener("mouseout", function(event) {
-          var target = event.target;
-          if (!(target instanceof HTMLElement)) return;
-          if (!target.matches("[data-vcr-debug-key]")) return;
-          highlightChange(target.closest("[data-vcr-debug-entry]"), target.getAttribute("data-vcr-debug-key"), false);
+        bindHover("[data-vcr-debug-key]", function(target, active) {
+          highlightChange(target.closest("[data-vcr-debug-entry]"), target.getAttribute("data-vcr-debug-key"), active);
         });
         if (toggle) {
           toggle.addEventListener("change", function(event) {
@@ -312,6 +292,30 @@ module ViewComponentReducible
         function truncateText(text, limit) {
           if (text.length <= limit) return text;
           return text.slice(0, limit) + "...";
+        }
+        function buildChangeRow(key, change, unchangedValue) {
+          var row = document.createElement("div");
+          row.className = "vcr-debug-change";
+          row.setAttribute("data-vcr-debug-change-key", key);
+          row.appendChild(document.createTextNode(key + ": "));
+          if (change) {
+            var from = document.createElement("span");
+            from.className = "vcr-debug-from";
+            from.textContent = formatValue(change.from);
+            var arrow = document.createTextNode(" -> ");
+            var to = document.createElement("span");
+            to.className = "vcr-debug-to";
+            to.textContent = formatValue(change.to);
+            row.appendChild(from);
+            row.appendChild(arrow);
+            row.appendChild(to);
+          } else if (unchangedValue !== undefined) {
+            var value = document.createElement("span");
+            value.className = "vcr-debug-unchanged";
+            value.textContent = formatValue(unchangedValue);
+            row.appendChild(value);
+          }
+          return row;
         }
         function renderEntry(entry, detail, showAll) {
           entry.innerHTML = "";
@@ -402,49 +406,14 @@ module ViewComponentReducible
             var stateKeys = Object.keys(detail.state);
             stateKeys.forEach(function(key) {
               var change = detail.changes ? detail.changes[key] : null;
-              var row = document.createElement("div");
-              row.className = "vcr-debug-change";
-              row.setAttribute("data-vcr-debug-change-key", key);
-              row.appendChild(document.createTextNode(key + ": "));
-              if (change) {
-                var from = document.createElement("span");
-                from.className = "vcr-debug-from";
-                from.textContent = formatValue(change.from);
-                var arrow = document.createTextNode(" -> ");
-                var to = document.createElement("span");
-                to.className = "vcr-debug-to";
-                to.textContent = formatValue(change.to);
-                row.appendChild(from);
-                row.appendChild(arrow);
-                row.appendChild(to);
-              } else {
-                var value = document.createElement("span");
-                value.className = "vcr-debug-unchanged";
-                value.textContent = formatValue(detail.state[key]);
-                row.appendChild(value);
-              }
-              entry.appendChild(row);
+              entry.appendChild(buildChangeRow(key, change, detail.state[key]));
             });
             return;
           }
           var changes = detail.changes || {};
           Object.keys(changes).forEach(function(key) {
             var change = changes[key] || {};
-            var row = document.createElement("div");
-            row.className = "vcr-debug-change";
-            row.setAttribute("data-vcr-debug-change-key", key);
-            row.appendChild(document.createTextNode(key + ": "));
-            var from = document.createElement("span");
-            from.className = "vcr-debug-from";
-            from.textContent = formatValue(change.from);
-            var arrow = document.createTextNode(" -> ");
-            var to = document.createElement("span");
-            to.className = "vcr-debug-to";
-            to.textContent = formatValue(change.to);
-            row.appendChild(from);
-            row.appendChild(arrow);
-            row.appendChild(to);
-            entry.appendChild(row);
+            entry.appendChild(buildChangeRow(key, change));
           });
         }
         function addEntry(detail) {
