@@ -47,6 +47,17 @@ RSpec.describe ViewComponentReducible::Helpers do
     expect(html).to include('value="root/123e4567-e89b-12d3-a456-426614174000"')
   end
 
+  it 'defaults the state token to the current component token' do
+    view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
+    view.extend(described_class)
+    view.instance_variable_set(:@vcr_state_token, 'token')
+
+    html = view.vcr_dispatch_form(msg_type: 'Ping') { 'Go' }
+
+    expect(html).to include(%(name="#{ViewComponentReducible.config.adapter.state_param_name}"))
+    expect(html).to include('value="token"')
+  end
+
   it 'prefers the envelope path over the current path' do
     view = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
     view.extend(described_class)

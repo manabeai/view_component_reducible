@@ -14,21 +14,28 @@ module ViewComponentReducible
     end
 
     # Build a dispatch form with hidden fields for the VCR endpoint.
-    # @param state [String] signed state token
+    # @param state [String, nil] signed state token (defaults to current component token)
     # @param msg_type [String]
     # @param msg_payload [Hash, String]
     # @param target_path [String, nil]
     # @param url [String]
     # @yield block for the form body (e.g., submit button)
     # @return [String]
-    def vcr_dispatch_form(state:, msg_type:, msg_payload: {}, target_path: nil, url: '/vcr/dispatch', &block)
+    def vcr_dispatch_form(msg_type:, state: nil, msg_payload: {}, target_path: nil, url: '/vcr/dispatch', &block)
       payload = msg_payload.is_a?(String) ? msg_payload : JSON.generate(msg_payload)
+      resolved_state = state || instance_variable_get(:@vcr_state_token)
       resolved_target = target_path || vcr_envelope_path || instance_variable_get(:@vcr_current_path) || 'root'
+      component_context = instance_variable_defined?(:@vcr_current_path) || !vcr_envelope_path.nil?
+      if resolved_state.nil? && !component_context
+        raise ArgumentError, 'vcr_state is missing. Pass state: or render inside a component.'
+      end
+
+      resolved_state = '' if resolved_state.nil?
       state_param = ViewComponentReducible.config.adapter.state_param_name
 
       form_tag(url, method: :post, data: { vcr_form: true, vcr_state_param: state_param }) do
         body = [
-          hidden_field_tag(state_param, state),
+          hidden_field_tag(state_param, resolved_state),
           hidden_field_tag('vcr_msg_type', msg_type),
           hidden_field_tag('vcr_msg_payload', payload),
           hidden_field_tag('vcr_target_path', resolved_target),

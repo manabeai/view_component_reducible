@@ -53,7 +53,9 @@ module ViewComponentReducible
 
       path = vcr_envelope && vcr_envelope['path']
       previous_path = view_context.instance_variable_get(:@vcr_current_path)
+      previous_token = view_context.instance_variable_get(:@vcr_state_token)
       view_context.instance_variable_set(:@vcr_current_path, path)
+      view_context.instance_variable_set(:@vcr_state_token, vcr_state_token)
 
       rendered = super
       return rendered if path.nil? || path.to_s.empty?
@@ -61,6 +63,7 @@ module ViewComponentReducible
       inject_vcr_path(rendered, path)
     ensure
       view_context.instance_variable_set(:@vcr_current_path, previous_path)
+      view_context.instance_variable_set(:@vcr_state_token, previous_token)
     end
 
     module ClassMethods
