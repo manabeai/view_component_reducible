@@ -3,8 +3,6 @@
 class BookingComponent < ViewComponent::Base
   include ViewComponentReducible::Component
 
-  STAFF_OPTIONS = %w[Aki Mika Sora].freeze
-
   state do
     field :calendar_days, default: -> { BookingMockData.calendar_days }
     field :selected_day, default: nil
@@ -15,7 +13,7 @@ class BookingComponent < ViewComponent::Base
   end
 
   def staff_options
-    STAFF_OPTIONS
+    BookingMockData::STAFF_OPTIONS
   end
 
   def reduce(state, msg)
@@ -43,12 +41,31 @@ class BookingComponent < ViewComponent::Base
       state.with(calendar_days: payload.days || [])
 
     in { type: :select_staff, payload: payload }
+      effect = build_select_staff_effect(payload.staff)
+      [state, effect]
+
+    in { type: :staff_selected, payload: payload }
       state.with(selected_staff: payload.staff)
     end
   end
 
   def calendar_day_records
     BookingMockData.calendar_day_records(vcr_state.calendar_days)
+  end
+
+  def calendar_day_summary(day)
+    record = calendar_day_records.find { |item| item.day == day }
+    return summary_label(nil) if record.nil? || record.year.nil? || record.month.nil?
+
+    "#{record.year}年#{record.month}月#{record.day}日"
+  end
+
+  def summary_label(value, empty_label: "未選択")
+    value.nil? || value == "" ? empty_label : value
+  end
+
+  def summary_class(value)
+    value.nil? || value == "" ? "text-stone-300" : "text-stone-700"
   end
 
   def calendar_status_label(status)
@@ -62,8 +79,8 @@ class BookingComponent < ViewComponent::Base
 
   def calendar_status_class(status)
     case status
-    when "circle" then "text-red-500"
-    when "triangle" then "text-yellow-500"
+    when "circle" then "rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700"
+    when "triangle" then "rounded-full bg-yellow-100 px-2 py-0.5 text-yellow-700"
     when "cross" then "text-stone-500"
     else "text-stone-400"
     end
@@ -91,7 +108,7 @@ class BookingComponent < ViewComponent::Base
   private
 
   def build_times_effect(day)
-    times = BookingMockData.available_times
+    times = BookingMockData.available_times(day: day)
 
     lambda do |**_kwargs|
       ViewComponentReducible::Msg.build(type: "TimesLoaded", payload: { times: times })
@@ -99,10 +116,16 @@ class BookingComponent < ViewComponent::Base
   end
 
   def build_staff_effect(time)
-    staff = BookingMockData.available_staff(options: STAFF_OPTIONS)
+    staff = BookingMockData.available_staff(options: BookingMockData::STAFF_OPTIONS, time: time)
 
     lambda do |**_kwargs|
       ViewComponentReducible::Msg.build(type: "StaffLoaded", payload: { staff: staff, time: time })
+    end
+  end
+
+  def build_select_staff_effect(staff)
+    lambda do |**_kwargs|
+      ViewComponentReducible::Msg.build(type: "StaffSelected", payload: { staff: staff })
     end
   end
 

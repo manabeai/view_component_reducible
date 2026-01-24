@@ -1,5 +1,29 @@
 const { test, expect } = require('@playwright/test');
 
+const TIME_OPTIONS = [
+  '09:00',
+  '10:00',
+  '11:00',
+  '12:00',
+  '13:00',
+  '14:00',
+  '15:00',
+  '16:00',
+  '17:00',
+  '18:00'
+];
+
+const STAFF_OPTIONS = ['Aki', 'Mika', 'Sora'];
+
+const expectedTimeCount = (day) => (day % 6) + 1;
+
+const expectedStaffCount = (timeLabel) => {
+  const minCount = Math.min(2, STAFF_OPTIONS.length);
+  const range = STAFF_OPTIONS.length - minCount;
+  const seed = Buffer.from(timeLabel, 'utf8').reduce((sum, b) => sum + b, 0);
+  return minCount + (range === 0 ? 0 : seed % (range + 1));
+};
+
 test('counter increments, decrements, and resets', async ({ page }) => {
   // 初期表示を開く
   await page.goto('/');
@@ -57,19 +81,19 @@ test('booking flow reveals times and staff', async ({ page }) => {
 
   // 右側のサマリが初期表示で未選択になっていることを確認
   await expect(page.getByTestId('booking-summary')).toBeVisible();
-  await expect(page.getByTestId('selected-day')).toHaveText('-');
-  await expect(page.getByTestId('selected-time')).toHaveText('-');
-  await expect(page.getByTestId('selected-staff')).toHaveText('-');
+  await expect(page.getByTestId('selected-day')).toHaveText('未選択');
+  await expect(page.getByTestId('selected-time')).toHaveText('未選択');
+  await expect(page.getByTestId('selected-staff')).toHaveText('未選択');
 
   // 日付を選択して時間一覧を出す
-  await page.getByTestId('day-15').click();
-  await expect(page.getByTestId('selected-day')).toHaveText('15');
+  const selectedDay = 15;
+  await page.getByTestId(`day-${selectedDay}`).click();
+  await expect(page.getByTestId('selected-day')).toHaveText('2024年3月15日');
   const timeButtons = page.locator('[data-testid^="time-"]');
   await expect(timeButtons.first()).toBeVisible();
-  // 時間の件数が1〜6であることを確認
+  // 時間の件数がモック仕様通りであることを確認
   const timeCount = await timeButtons.count();
-  expect(timeCount).toBeGreaterThanOrEqual(1);
-  expect(timeCount).toBeLessThanOrEqual(6);
+  expect(timeCount).toBe(expectedTimeCount(selectedDay));
 
   // 時間を選択してスタッフ一覧を出す
   const selectedTime = await timeButtons.first().innerText();
@@ -83,7 +107,7 @@ test('booking flow reveals times and staff', async ({ page }) => {
   await expect(staffButtons.first()).toBeVisible();
   // スタッフ人数が複数であることを確認
   const staffCount = await staffButtons.count();
-  expect(staffCount).toBeGreaterThanOrEqual(2);
+  expect(staffCount).toBe(expectedStaffCount(selectedTime));
   // スタッフを選択して予約ボタンを表示
   const selectedStaff = await staffButtons.first().innerText();
   await staffButtons.first().click();
@@ -93,8 +117,8 @@ test('booking flow reveals times and staff', async ({ page }) => {
 
   // 日付を選び直すとスタッフと時間がリセットされることを確認
   await page.getByTestId('day-16').click();
-  await expect(page.getByTestId('selected-day')).toHaveText('16');
-  await expect(page.getByTestId('selected-time')).toHaveText('-');
-  await expect(page.getByTestId('selected-staff')).toHaveText('-');
+  await expect(page.getByTestId('selected-day')).toHaveText('2024年3月16日');
+  await expect(page.getByTestId('selected-time')).toHaveText('未選択');
+  await expect(page.getByTestId('selected-staff')).toHaveText('未選択');
   await expect(page.getByTestId('booking-button')).toHaveCount(0);
 });

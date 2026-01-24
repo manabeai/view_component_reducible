@@ -104,15 +104,15 @@
           <dl class="mt-6 space-y-6">
             <div class="flex items-start justify-between">
               <dt class="text-xs font-medium text-stone-400">ご来店予定日</dt>
-              <dd class="text-right text-sm font-bold text-stone-700" data-testid="selected-day"><%= vcr_state.selected_day || "-" %></dd>
+              <dd class="text-right text-sm font-bold <%= summary_class(vcr_state.selected_day) %>" data-testid="selected-day"><%= calendar_day_summary(vcr_state.selected_day) %></dd>
             </div>
             <div class="flex items-start justify-between">
               <dt class="text-xs font-medium text-stone-400">お時間</dt>
-              <dd class="text-right text-sm font-bold text-stone-700" data-testid="selected-time"><%= vcr_state.selected_time || "-" %></dd>
+              <dd class="text-right text-sm font-bold <%= summary_class(vcr_state.selected_time) %>" data-testid="selected-time"><%= summary_label(vcr_state.selected_time) %></dd>
             </div>
             <div class="flex items-start justify-between">
               <dt class="text-xs font-medium text-stone-400">担当者</dt>
-              <dd class="text-right text-sm font-bold text-stone-700" data-testid="selected-staff"><%= vcr_state.selected_staff || "-" %></dd>
+              <dd class="text-right text-sm font-bold <%= summary_class(vcr_state.selected_staff) %>" data-testid="selected-staff"><%= summary_label(vcr_state.selected_staff) %></dd>
             </div>
           </dl>
 
