@@ -41,8 +41,16 @@ jobs:
           BUNDLE_DEPLOYMENT: "false"
         run: bundle install --jobs 4 --retry 3
 
+      - name: Install dummy gems
+        env:
+          BUNDLE_FROZEN: "false"
+          BUNDLE_DEPLOYMENT: "false"
+        run: bundle install --gemfile spec/dummy/Gemfile --jobs 4 --retry 3
+
       - name: Prepare dummy database
         run: bundle exec rails db:prepare
+        env:
+          BUNDLE_GEMFILE: spec/dummy/Gemfile
         working-directory: spec/dummy
 
       - name: Run RSpec
@@ -117,6 +125,8 @@ jobs:
 
       - name: Prepare dummy database
         run: RAILS_ENV=test bundle exec rails db:prepare db:seed
+        env:
+          BUNDLE_GEMFILE: spec/dummy/Gemfile
         working-directory: spec/dummy
 
       - name: Run Playwright E2E
