@@ -17,21 +17,50 @@ class BookingFlexibleComponent < ViewComponent::Base
     field :final_day, default: nil
     field :final_time, default: nil
     field :final_staff_id, default: nil
+    field :confirmed_at, default: nil
   end
 
   def reduce(state, msg)
     case msg
     in { type: :toggle_day, payload: payload }
       desired_days = toggle_value(state.desired_days, normalize_day(payload.day))
-      apply_availability(state.with(desired_days: desired_days))
+      next_state = state.with(desired_days: desired_days)
+      effect = build_availability_effect(
+        desired_days: next_state.desired_days,
+        desired_times: next_state.desired_times,
+        desired_staff_ids: next_state.desired_staff_ids
+      )
+      [next_state, effect]
 
     in { type: :toggle_time, payload: payload }
       desired_times = toggle_value(state.desired_times, payload.time.to_s)
-      apply_availability(state.with(desired_times: desired_times))
+      next_state = state.with(desired_times: desired_times)
+      effect = build_availability_effect(
+        desired_days: next_state.desired_days,
+        desired_times: next_state.desired_times,
+        desired_staff_ids: next_state.desired_staff_ids
+      )
+      [next_state, effect]
 
     in { type: :toggle_staff, payload: payload }
       desired_staff_ids = toggle_value(state.desired_staff_ids, payload.staff_id.to_i)
-      apply_availability(state.with(desired_staff_ids: desired_staff_ids))
+      next_state = state.with(desired_staff_ids: desired_staff_ids)
+      effect = build_availability_effect(
+        desired_days: next_state.desired_days,
+        desired_times: next_state.desired_times,
+        desired_staff_ids: next_state.desired_staff_ids
+      )
+      [next_state, effect]
+
+    in { type: :availability_loaded, payload: payload }
+      state.with(
+        available_days: Array(payload.available_days),
+        available_times: Array(payload.available_times),
+        available_staff_ids: Array(payload.available_staff_ids),
+        selected_days: Array(payload.selected_days),
+        selected_times: Array(payload.selected_times),
+        selected_staff_ids: Array(payload.selected_staff_ids)
+      )
 
     in { type: :go_next }
       return state unless ready_for_final?(state)
@@ -50,8 +79,13 @@ class BookingFlexibleComponent < ViewComponent::Base
     in { type: :select_final_staff, payload: payload }
       state.with(final_staff_id: payload.staff_id.to_i)
 
-    else
-      state
+    in { type: :confirm_booking }
+      return state unless final_ready?(state)
+
+      [state, build_confirmation_effect(state)]
+
+    in { type: :booking_confirmed, payload: payload }
+      state.with(confirmed_at: payload.confirmed_at)
     end
   end
 
@@ -87,15 +121,11 @@ class BookingFlexibleComponent < ViewComponent::Base
   def day_label(day_key)
     date = Date.parse(day_key.to_s)
     "#{date.month}/#{date.day}"
-  rescue Date::Error
-    day_key.to_s
   end
 
   def weekday_label(day_key)
     date = Date.parse(day_key.to_s)
     %w[日 月 火 水 木 金 土][date.wday]
-  rescue Date::Error
-    "-"
   end
 
   def all_days
@@ -134,26 +164,41 @@ class BookingFlexibleComponent < ViewComponent::Base
     state.desired_staff_ids.include?(staff_id)
   end
 
+  def final_ready?(current_state = state)
+    current_state.final_day.present? && current_state.final_time.present? && current_state.final_staff_id.present?
+  end
+
   def ready_for_final?(current_state = state)
     current_state.selected_days.any? && current_state.selected_times.any? && current_state.selected_staff_ids.any?
   end
 
   private
 
-  def apply_availability(current_state)
+  def build_availability_effect(desired_days:, desired_times:, desired_staff_ids:)
     recalc = recalculate_active(
-      desired_days: current_state.desired_days,
-      desired_times: current_state.desired_times,
-      desired_staff_ids: current_state.desired_staff_ids
+      desired_days: desired_days,
+      desired_times: desired_times,
+      desired_staff_ids: desired_staff_ids
     )
 
-    current_state.with(
+    emit(
+      :availability_loaded,
       available_days: recalc[:available_days],
       available_times: recalc[:available_times],
       available_staff_ids: recalc[:available_staff_ids],
       selected_days: recalc[:active_days],
       selected_times: recalc[:active_times],
       selected_staff_ids: recalc[:active_staff_ids]
+    )
+  end
+
+  def build_confirmation_effect(current_state)
+    emit(
+      :booking_confirmed,
+      confirmed_at: Time.current.iso8601,
+      final_day: current_state.final_day,
+      final_time: current_state.final_time,
+      final_staff_id: current_state.final_staff_id
     )
   end
 
@@ -243,24 +288,13 @@ class BookingFlexibleComponent < ViewComponent::Base
     end
 
     def filtered_slots(selected_days: [], selected_times: [], selected_staff_ids: [])
-      slots = all_slots
-
-      if selected_staff_ids.any?
-        ids = selected_staff_ids.map(&:to_i)
-        slots = slots.select { |slot| ids.include?(slot.staff_id) }
-      end
-
-      if selected_days.any?
-        day_keys = selected_days.map(&:to_s)
-        slots = slots.select { |slot| day_keys.include?(slot.day_key.to_s) }
-      end
-
-      if selected_times.any?
-        time_labels = selected_times.map(&:to_s)
-        slots = slots.select { |slot| time_labels.include?(slot.time_label.to_s) }
-      end
-
-      slots
+      day_values = selected_days.map { |day_key| Date.parse(day_key.to_s) }
+      TimeSlot
+        .with_staff_ids(selected_staff_ids)
+        .on_days(day_values)
+        .at_times(selected_times)
+        .includes(:staff)
+        .to_a
     end
   end
 end

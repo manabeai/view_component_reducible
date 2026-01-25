@@ -301,16 +301,23 @@
           </div>
         </div>
 
-        <% final_ready = state.final_day.present? && state.final_time.present? && state.final_staff_id.present? %>
+        <% final_ready = final_ready? %>
+        <% confirmed = state.confirmed_at.present? %>
         <div id="confirmation-area" class="p-10 rounded-[3rem] border-4 border-dashed border-indigo-900/50 transition-all duration-1000 text-center flex flex-col items-center gap-6 <%= final_ready ? "opacity-100" : "opacity-50" %>">
           <div id="confirmation-msg" class="text-indigo-300 font-bold italic py-4">
-            <%= final_ready ? "最終確認の準備ができました。" : "残りの項目を選択してください..." %>
+            <%= confirmed ? "予約を確定しました。" : (final_ready ? "最終確認の準備ができました。" : "残りの項目を選択してください...") %>
           </div>
-          <% if final_ready %>
-            <button class="group bg-white text-indigo-950 px-16 py-7 rounded-full font-black text-2xl flex items-center gap-4 hover:scale-105 active:scale-95 transition-all shadow-[0_20px_60px_rgba(255,255,255,0.2)]">
+          <% if final_ready && !confirmed %>
+            <%= vcr_button_to(
+              "",
+              type: :confirm_booking,
+              button_attrs: {
+                class: "group bg-white text-indigo-950 px-16 py-7 rounded-full font-black text-2xl flex items-center gap-4 hover:scale-105 active:scale-95 transition-all shadow-[0_20px_60px_rgba(255,255,255,0.2)]"
+              }
+            ) do %>
               予約を確定する
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-2 group-hover:-translate-y-1 transition-transform"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-            </button>
+            <% end %>
           <% end %>
         </div>
       </div>
