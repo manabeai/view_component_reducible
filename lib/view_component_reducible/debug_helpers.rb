@@ -20,7 +20,14 @@ module ViewComponentReducible
                         content_tag(:span, 'Show all', class: 'vcr-debug-toggle-text')
                       ]
                     )
-                  end
+                  end,
+                  content_tag(
+                    :button,
+                    'Hide',
+                    type: 'button',
+                    class: 'vcr-debug-collapse',
+                    data: { vcr_debug_collapse: true }
+                  )
                 ]
               )
             end,

@@ -46,6 +46,21 @@ module ViewComponentReducible
       #vcr-debug-bar .vcr-debug-toggle input {
         accent-color: #38bdf8;
       }
+      #vcr-debug-bar .vcr-debug-collapse {
+        border: 1px solid #334155;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        background: #0f172a;
+        color: #e2e8f0;
+        cursor: pointer;
+      }
+      #vcr-debug-bar .vcr-debug-collapse:hover {
+        border-color: #38bdf8;
+        color: #ffffff;
+      }
       #vcr-debug-bar .vcr-debug-source {
         color: #f8fafc;
         cursor: pointer;
@@ -252,6 +267,30 @@ module ViewComponentReducible
           display: none;
         }
       }
+      #vcr-debug-bar.vcr-debug-collapsed {
+        width: 140px;
+        height: 44px;
+        top: 12px;
+        right: 12px;
+        border-radius: 999px;
+        border-left: none;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.4);
+        overflow: hidden;
+      }
+      #vcr-debug-bar.vcr-debug-collapsed .vcr-debug-log,
+      #vcr-debug-bar.vcr-debug-collapsed .vcr-debug-footer,
+      #vcr-debug-bar.vcr-debug-collapsed .vcr-debug-title-text,
+      #vcr-debug-bar.vcr-debug-collapsed .vcr-debug-toggle {
+        display: none;
+      }
+      #vcr-debug-bar.vcr-debug-collapsed .vcr-debug-header {
+        border-bottom: none;
+        padding: 8px 12px;
+        justify-content: center;
+      }
+      #vcr-debug-bar.vcr-debug-collapsed .vcr-debug-collapse {
+        padding: 4px 10px;
+      }
     CSS
 
     SCRIPT = <<~JS
@@ -265,7 +304,21 @@ module ViewComponentReducible
         var empty = bar.querySelector("[data-vcr-debug-empty]");
         var clear = bar.querySelector("[data-vcr-debug-clear]");
         var toggle = bar.querySelector("[data-vcr-debug-toggle]");
+        var collapse = bar.querySelector("[data-vcr-debug-collapse]");
         var showAll = false;
+        var collapsed = false;
+        function setCollapsed(value) {
+          collapsed = value;
+          bar.classList.toggle("vcr-debug-collapsed", collapsed);
+          if (collapse) {
+            collapse.textContent = collapsed ? "Show" : "Hide";
+          }
+        }
+        if (collapse) {
+          collapse.addEventListener("click", function() {
+            setCollapsed(!collapsed);
+          });
+        }
         function highlightSource(sourceId, active) {
           if (!sourceId) return;
           var nodes = document.querySelectorAll('[data-vcr-source-id="' + sourceId + '"]');
