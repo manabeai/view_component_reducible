@@ -154,6 +154,7 @@ GEM
     nio4r (2.7.5)
     nokogiri (1.19.0-x86_64-linux-gnu)
       racc (~> 1.4)
+    pg (1.6.3-x86_64-linux)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -259,7 +260,6 @@ GEM
       fugit (~> 1.11)
       railties (>= 7.1)
       thor (>= 1.3.1)
-    sqlite3 (2.9.0-x86_64-linux-gnu)
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
     stringio (3.2.0)
@@ -292,6 +292,7 @@ DEPENDENCIES
   importmap-rails
   irb
   jbuilder
+  pg (>= 1.5)
   propshaft
   puma (>= 5.0)
   rails (~> 8.1.2)
@@ -301,7 +302,6 @@ DEPENDENCIES
   solid_cable
   solid_cache
   solid_queue
-  sqlite3 (>= 2.1)
   stimulus-rails
   turbo-rails
   view_component_reducible!

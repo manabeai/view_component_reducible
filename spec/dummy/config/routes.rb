@@ -15,4 +15,5 @@ Rails.application.routes.draw do
   root "home#index"
   get "/two_counters" => "home#two_counters"
   get "/effects" => "home#effects"
+  get "/booking_flexible" => "home#booking_flexible"
 end
