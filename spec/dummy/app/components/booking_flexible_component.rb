@@ -168,6 +168,30 @@ class BookingFlexibleComponent < ViewComponent::Base
     current_state.final_day.present? && current_state.final_time.present? && current_state.final_staff_id.present?
   end
 
+  def final_staff_name
+    return nil if state.final_staff_id.nil?
+
+    Staff.find_by(id: state.final_staff_id)&.name
+  end
+
+  def final_time_range_label
+    return nil unless final_ready?
+
+    start_time = Time.zone.parse("#{state.final_day} #{state.final_time}")
+    end_time = start_time + 60.minutes
+    "#{start_time.strftime("%Y年%-m月%-d日 %H:%M")}~#{end_time.strftime("%H:%M")}"
+  end
+
+  def final_confirmation_message
+    return nil unless final_ready?
+
+    time_label = final_time_range_label
+    staff_name = final_staff_name
+    return nil if time_label.nil? || staff_name.nil?
+
+    "#{time_label}に#{staff_name}がお待ちしております"
+  end
+
   def ready_for_final?(current_state = state)
     current_state.selected_days.any? && current_state.selected_times.any? && current_state.selected_staff_ids.any?
   end

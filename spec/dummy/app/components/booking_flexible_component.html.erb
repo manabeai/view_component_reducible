@@ -303,9 +303,23 @@
 
         <% final_ready = final_ready? %>
         <% confirmed = state.confirmed_at.present? %>
-        <div id="confirmation-area" class="p-10 rounded-[3rem] border-4 border-dashed border-indigo-900/50 transition-all duration-1000 text-center flex flex-col items-center gap-6 <%= final_ready ? "opacity-100" : "opacity-50" %>">
-          <div id="confirmation-msg" class="text-indigo-300 font-bold italic py-4">
-            <%= confirmed ? "予約を確定しました。" : (final_ready ? "最終確認の準備ができました。" : "残りの項目を選択してください...") %>
+        <% confirmation_class = if final_ready
+                                  "mt-16 p-10 rounded-[3rem] border-4 border-dashed border-cyan-400 bg-cyan-400/10 shadow-[0_0_50px_rgba(34,211,238,0.1)] opacity-100 text-center flex flex-col items-center gap-6"
+                                else
+                                  "mt-16 p-10 rounded-[3rem] border-4 border-dashed border-indigo-900/50 opacity-50 text-center flex flex-col items-center gap-6"
+                                end %>
+        <div id="confirmation-area" class="<%= confirmation_class %>">
+          <div id="confirmation-msg" class="<%= final_ready ? "py-4" : "text-indigo-300 font-bold italic py-4" %>">
+            <% if confirmed %>
+              予約を確定しました。
+            <% elsif final_ready %>
+              <p class="text-2xl font-medium max-w-lg">
+                <span class="text-cyan-400 font-black underline underline-offset-8"><%= final_time_range_label %></span>に<br>
+                <span class="text-cyan-400 font-black"><%= final_staff_name %></span>がお待ちしております
+              </p>
+            <% else %>
+              残りの項目を選択してください...
+            <% end %>
           </div>
           <% if final_ready && !confirmed %>
             <%= vcr_button_to(
