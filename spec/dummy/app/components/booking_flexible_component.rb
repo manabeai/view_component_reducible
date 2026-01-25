@@ -62,7 +62,12 @@ class BookingFlexibleComponent < ViewComponent::Base
     in { type: :go_next }
       return state unless ready_for_final?(state)
 
-      state.with(phase: "single", final_day: nil, final_time: nil, final_staff_id: nil)
+      state.with(
+        phase: "single",
+        final_day: single_value(state.selected_days),
+        final_time: single_value(state.selected_times),
+        final_staff_id: single_value(state.selected_staff_ids)
+      )
 
     in { type: :back_to_multi }
       state.with(phase: "multi")
@@ -194,6 +199,11 @@ class BookingFlexibleComponent < ViewComponent::Base
   end
 
   private
+
+  def single_value(values)
+    items = Array(values)
+    items.size == 1 ? items.first : nil
+  end
 
   def build_availability_effect_from(current_state)
     build_availability_effect(
