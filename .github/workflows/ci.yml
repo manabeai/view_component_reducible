@@ -50,7 +50,7 @@ jobs:
       - name: Prepare dummy database
         run: bundle exec rails db:prepare
         env:
-          BUNDLE_GEMFILE: spec/dummy/Gemfile
+          BUNDLE_GEMFILE: Gemfile
         working-directory: spec/dummy
 
       - name: Run RSpec
@@ -126,7 +126,7 @@ jobs:
       - name: Prepare dummy database
         run: RAILS_ENV=test bundle exec rails db:prepare db:seed
         env:
-          BUNDLE_GEMFILE: spec/dummy/Gemfile
+          BUNDLE_GEMFILE: Gemfile
         working-directory: spec/dummy
 
       - name: Run Playwright E2E
