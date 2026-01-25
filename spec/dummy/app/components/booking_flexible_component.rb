@@ -25,32 +25,29 @@ class BookingFlexibleComponent < ViewComponent::Base
     in { type: :toggle_day, payload: payload }
       desired_days = toggle_value(state.desired_days, normalize_day(payload.day))
       next_state = state.with(desired_days: desired_days)
-      effect = build_availability_effect(
-        desired_days: next_state.desired_days,
-        desired_times: next_state.desired_times,
-        desired_staff_ids: next_state.desired_staff_ids
-      )
-      [next_state, effect]
+      [next_state, build_availability_effect_from(next_state)]
 
     in { type: :toggle_time, payload: payload }
       desired_times = toggle_value(state.desired_times, payload.time.to_s)
       next_state = state.with(desired_times: desired_times)
-      effect = build_availability_effect(
-        desired_days: next_state.desired_days,
-        desired_times: next_state.desired_times,
-        desired_staff_ids: next_state.desired_staff_ids
-      )
-      [next_state, effect]
+      [next_state, build_availability_effect_from(next_state)]
 
     in { type: :toggle_staff, payload: payload }
       desired_staff_ids = toggle_value(state.desired_staff_ids, payload.staff_id.to_i)
       next_state = state.with(desired_staff_ids: desired_staff_ids)
-      effect = build_availability_effect(
-        desired_days: next_state.desired_days,
-        desired_times: next_state.desired_times,
-        desired_staff_ids: next_state.desired_staff_ids
-      )
-      [next_state, effect]
+      [next_state, build_availability_effect_from(next_state)]
+
+    in { type: :reset_days }
+      next_state = state.with(desired_days: [])
+      [next_state, build_availability_effect_from(next_state)]
+
+    in { type: :reset_times }
+      next_state = state.with(desired_times: [])
+      [next_state, build_availability_effect_from(next_state)]
+
+    in { type: :reset_staff }
+      next_state = state.with(desired_staff_ids: [])
+      [next_state, build_availability_effect_from(next_state)]
 
     in { type: :availability_loaded, payload: payload }
       state.with(
@@ -193,10 +190,18 @@ class BookingFlexibleComponent < ViewComponent::Base
   end
 
   def ready_for_final?(current_state = state)
-    current_state.selected_days.any? && current_state.selected_times.any? && current_state.selected_staff_ids.any?
+    current_state.desired_days.any? && current_state.desired_times.any? && current_state.desired_staff_ids.any?
   end
 
   private
+
+  def build_availability_effect_from(current_state)
+    build_availability_effect(
+      desired_days: current_state.desired_days,
+      desired_times: current_state.desired_times,
+      desired_staff_ids: current_state.desired_staff_ids
+    )
+  end
 
   def build_availability_effect(desired_days:, desired_times:, desired_staff_ids:)
     recalc = recalculate_active(
