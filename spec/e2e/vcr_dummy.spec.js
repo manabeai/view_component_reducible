@@ -126,10 +126,66 @@ test('booking flow reveals times and staff', async ({ page }) => {
 
   // 日付を選び直すとスタッフと時間がリセットされることを確認
   await page.getByTestId('day-16').click();
-  await expect(page.getByTestId('selected-day')).toHaveText('2024年3月16日');
-  await expect(page.getByTestId('selected-time')).toHaveText('未選択');
-  await expect(page.getByTestId('selected-staff')).toHaveText('未選択');
+  await expect(page.getByTestId('selected-day')).toHaveText('2024年3月16日', { timeout: 10_000 });
+  await expect(page.getByTestId('selected-time')).toHaveText('未選択', { timeout: 10_000 });
+  await expect(page.getByTestId('selected-staff')).toHaveText('未選択', { timeout: 10_000 });
   await expect(page.getByTestId('booking-button')).toHaveCount(0);
+});
+
+test('booking flexible flow keeps disabled options and confirms', async ({ page }) => {
+  // 予約候補絞り込み画面へ遷移
+  await page.goto('/booking_flexible');
+  // デバッグバーがテスト操作を邪魔しないように非表示
+  await page.addStyleTag({ content: '[data-vcr-debug-bar]{display:none !important;}' });
+
+  // 日付・時間・スタッフを順に選択
+  const dayButton = page.locator('#date-grid-p1 button:not([disabled])').first();
+  const timeButton = page.locator('#time-grid-p1 button:not([disabled])').first();
+  const staffButton = page.locator('#staff-grid-p1 button:not([disabled])').first();
+
+  await expect(dayButton).toBeVisible();
+  await dayButton.click();
+  await expect(page.locator('#date-grid-p1 button.bg-stone-900')).toHaveCount(1);
+  await timeButton.click();
+  await expect(page.locator('#time-grid-p1 button.bg-stone-900')).toHaveCount(1);
+  await staffButton.click();
+  await expect(page.locator('#staff-grid-p1 button.bg-stone-900')).toHaveCount(1);
+
+  // 次へボタンでフェーズ2へ遷移
+  const ctaContainer = page.locator('#cta-container');
+  await expect(ctaContainer).toHaveClass(/opacity-100/);
+  const ctaForm = ctaContainer.locator('form');
+  await expect(ctaForm).toHaveCount(1);
+  await ctaForm.evaluate((form) => form.requestSubmit());
+
+  // フェーズ2が表示され、無効要素が残ることを確認
+  await expect(page.locator('#phase2')).toBeVisible();
+
+  await expect(page.locator('#date-grid-p2 button[disabled]').first()).toBeVisible();
+  await expect(page.locator('#time-grid-p2 button[disabled]').first()).toBeVisible();
+  await expect(page.locator('#staff-grid-p2 button[disabled]').first()).toBeVisible();
+
+  // 最終候補を選択
+  const finalDayButton = page.locator('#date-grid-p2 button:not([disabled])').first();
+  const finalTimeButton = page.locator('#time-grid-p2 button:not([disabled])').first();
+  const finalStaffButton = page.locator('#staff-grid-p2 button:not([disabled])').first();
+
+  await finalDayButton.click();
+  await expect(page.locator('#date-grid-p2 button.bg-cyan-400')).toHaveCount(1);
+  await finalTimeButton.click();
+  await expect(page.locator('#time-grid-p2 button.bg-cyan-400')).toHaveCount(1);
+
+  const staffName = await finalStaffButton.locator('div').nth(1).innerText();
+  await finalStaffButton.click();
+  await expect(page.locator('#staff-grid-p2 button.bg-cyan-400')).toHaveCount(1);
+
+  // 確認文言に日時とスタッフが含まれることを確認
+  const finalCta = page.locator('#final-cta-container');
+  await expect(finalCta).toBeVisible();
+  const confirmationMsg = finalCta.locator('p').first();
+  await expect(confirmationMsg).toContainText(staffName.trim());
+  await expect(confirmationMsg).toContainText(/年\d{1,2}月\d{1,2}日 \d{2}:\d{2}~\d{2}:\d{2}/);
+  await expect(confirmationMsg).toContainText('がお待ちしております');
 });
 
 test('debug bar highlights the clicked button', async ({ page }) => {

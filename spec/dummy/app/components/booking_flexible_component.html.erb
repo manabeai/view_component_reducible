@@ -1,0 +1,385 @@
+<% content_for :head do %>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap");
+
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      transition: background-color 0.8s ease;
+    }
+
+    header { view-transition-name: app-header; }
+    #brand-name { view-transition-name: brand-title; }
+    #status-dot { view-transition-name: status-dot; }
+    #cta-container { view-transition-name: main-cta; }
+    .section-title { view-transition-name: section-title; }
+    .section-desc { view-transition-name: section-desc; }
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 0.8s;
+    }
+
+    .btn-transition {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .glass {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(34, 211, 238, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
+    }
+
+    .active-pulse {
+      animation: pulse-ring 2s infinite;
+    }
+  </style>
+<% end %>
+
+<% container_class = phase_two? ? "bg-slate-950 text-white" : "bg-[#fafaf9] text-stone-900" %>
+<div class="<%= container_class %> min-h-screen antialiased overflow-x-hidden transition-colors duration-700">
+  <header id="app-header" class="sticky top-0 z-50 border-b border-stone-200 bg-white/70 glass transition-colors duration-700 <%= "bg-slate-900/60 border-slate-800 text-white" if phase_two? %>">
+    <div class="mx-auto max-w-6xl px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <span id="status-dot" class="h-3 w-3 rounded-full shadow-lg transition-all duration-700 <%= phase_two? ? "bg-cyan-400" : "bg-amber-400" %>"></span>
+        <h1 id="brand-name" class="text-lg font-black tracking-widest uppercase transition-colors duration-700">Salon de Beaute</h1>
+      </div>
+      <div id="step-label" class="text-xs font-bold tracking-widest opacity-60">
+        <%= phase_two? ? "STEP 2: 最終決定" : "STEP 1: 候補を絞り込む" %>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-6 py-10 relative">
+    <% if phase_one? %>
+      <div id="phase1" class="max-w-5xl mx-auto space-y-12 pb-32">
+        <div class="h-[28px] opacity-0 pointer-events-none">Placeholder</div>
+
+        <div class="text-center space-y-2">
+          <h2 class="section-title text-4xl font-black">Search Candidates</h2>
+          <p class="section-desc text-stone-400 text-sm font-bold tracking-widest uppercase">ご希望の条件を自由に選んで候補を絞り込みます</p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-8">
+          <div class="flex-1 space-y-4">
+            <div class="flex items-center justify-between gap-3 px-2">
+              <div class="flex items-center gap-2 text-stone-400 font-bold text-xs uppercase tracking-widest">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span>日にち</span>
+              </div>
+              <%= vcr_button_to(
+                "",
+                type: :reset_days,
+                button_attrs: {
+                  class: "rounded-full border border-stone-300 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:border-stone-400 hover:text-stone-600"
+                }
+              ) do %>
+                Reset
+              <% end %>
+            </div>
+            <div id="date-grid-p1" class="grid grid-cols-2 gap-3">
+              <% days_for_phase.each do |day_key| %>
+                <% selected = state.selected_days.include?(day_key) %>
+                <% desired = desired_day?(day_key) %>
+                <% available = available_day?(day_key) %>
+                <% classes = if !available && desired
+                               "bg-stone-200 text-stone-500 border border-dashed border-stone-300 cursor-not-allowed"
+                             elsif !available
+                               "bg-stone-100 text-stone-300 border border-stone-200 cursor-not-allowed"
+                             elsif selected
+                               "bg-stone-900 text-white shadow-[0_16px_40px_rgba(15,23,42,0.3)]"
+                             else
+                               "bg-white text-stone-700 border border-stone-200 hover:-translate-y-1 hover:shadow-lg"
+                             end %>
+                <%= vcr_button_to(
+                  "",
+                  type: :toggle_day,
+                  payload: { day: day_key },
+                  button_attrs: {
+                    class: "btn-transition w-full rounded-2xl px-4 py-4 text-left #{classes}",
+                    disabled: !available
+                  }
+                ) do %>
+                  <div class="text-xs font-semibold uppercase tracking-widest opacity-50"><%= weekday_label(day_key) %></div>
+                  <div class="text-2xl font-black mt-2"><%= day_label(day_key) %></div>
+                  <div class="text-[10px] font-bold mt-3 opacity-60"><%= day_key %></div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex-1 space-y-4">
+            <div class="flex items-center justify-between gap-3 px-2">
+              <div class="flex items-center gap-2 text-stone-400 font-bold text-xs uppercase tracking-widest">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>お時間</span>
+              </div>
+              <%= vcr_button_to(
+                "",
+                type: :reset_times,
+                button_attrs: {
+                  class: "rounded-full border border-stone-300 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:border-stone-400 hover:text-stone-600"
+                }
+              ) do %>
+                Reset
+              <% end %>
+            </div>
+            <div id="time-grid-p1" class="grid grid-cols-2 gap-3">
+              <% times_for_phase.each do |time_label| %>
+                <% selected = state.selected_times.include?(time_label) %>
+                <% desired = desired_time?(time_label) %>
+                <% available = available_time?(time_label) %>
+                <% classes = if !available && desired
+                               "bg-stone-200 text-stone-500 border border-dashed border-stone-300 cursor-not-allowed"
+                             elsif !available
+                               "bg-stone-100 text-stone-300 border border-stone-200 cursor-not-allowed"
+                             elsif selected
+                               "bg-stone-900 text-white shadow-[0_16px_40px_rgba(15,23,42,0.3)]"
+                             else
+                               "bg-white text-stone-700 border border-stone-200 hover:-translate-y-1 hover:shadow-lg"
+                             end %>
+                <%= vcr_button_to(
+                  "",
+                  type: :toggle_time,
+                  payload: { time: time_label },
+                  button_attrs: {
+                    class: "btn-transition w-full rounded-2xl px-4 py-4 text-left #{classes}",
+                    disabled: !available
+                  }
+                ) do %>
+                  <div class="text-[10px] font-bold uppercase tracking-widest opacity-50">Time</div>
+                  <div class="text-2xl font-black mt-2"><%= time_label %></div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex-1 space-y-4">
+            <div class="flex items-center justify-between gap-3 px-2">
+              <div class="flex items-center gap-2 text-stone-400 font-bold text-xs uppercase tracking-widest">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>スタッフ</span>
+              </div>
+              <%= vcr_button_to(
+                "",
+                type: :reset_staff,
+                button_attrs: {
+                  class: "rounded-full border border-stone-300 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:border-stone-400 hover:text-stone-600"
+                }
+              ) do %>
+                Reset
+              <% end %>
+            </div>
+            <div id="staff-grid-p1" class="flex flex-col gap-3">
+              <% staff_for_phase.each do |staff| %>
+                <% selected = state.selected_staff_ids.include?(staff.id) %>
+                <% desired = desired_staff?(staff.id) %>
+                <% available = available_staff?(staff.id) %>
+                <% classes = if !available && desired
+                               "bg-stone-200 text-stone-500 border border-dashed border-stone-300 cursor-not-allowed"
+                             elsif !available
+                               "bg-stone-100 text-stone-300 border border-stone-200 cursor-not-allowed"
+                             elsif selected
+                               "bg-stone-900 text-white shadow-[0_16px_40px_rgba(15,23,42,0.3)]"
+                             else
+                               "bg-white text-stone-700 border border-stone-200 hover:-translate-y-1 hover:shadow-lg"
+                             end %>
+                <%= vcr_button_to(
+                  "",
+                  type: :toggle_staff,
+                  payload: { staff_id: staff.id },
+                  button_attrs: {
+                    class: "btn-transition w-full rounded-2xl px-4 py-4 text-left #{classes}",
+                    disabled: !available
+                  }
+                ) do %>
+                  <div class="text-[10px] font-bold uppercase tracking-widest opacity-50">Staff</div>
+                  <div class="text-xl font-black mt-2"><%= staff.name %></div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <% ready = ready_for_final? %>
+        <div id="cta-container" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 <%= ready ? "opacity-100 translate-y-0" : "pointer-events-none opacity-0 translate-y-10" %>">
+          <%= vcr_button_to(
+            "",
+            type: :go_next,
+            button_attrs: {
+              class: "bg-stone-900 text-white px-14 py-5 rounded-full font-black flex items-center gap-4 shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:scale-105 active:scale-95 transition-transform"
+            }
+          ) do %>
+            候補を絞って次へ
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div id="phase2" class="max-w-5xl mx-auto space-y-12 pb-32 text-white">
+        <%= vcr_button_to(
+          "",
+          type: :back_to_multi,
+          button_attrs: {
+            class: "flex items-center gap-2 text-cyan-400 font-black hover:text-cyan-300 transition-colors"
+          }
+        ) do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          STEP 1 に戻る
+        <% end %>
+
+        <div class="text-center space-y-2">
+          <h2 class="section-title text-4xl font-black">Final Decision</h2>
+          <p class="section-desc text-indigo-300 text-sm font-bold tracking-widest uppercase">候補の中から最終的な予約内容を1つ選んでください</p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-8">
+          <div class="flex-1 space-y-4">
+            <div class="flex items-center gap-2 px-2 text-indigo-300/70 font-bold text-xs uppercase tracking-widest">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <span>日にち</span>
+            </div>
+            <div id="date-grid-p2" class="grid grid-cols-2 gap-3">
+              <% all_days.each do |day_key| %>
+                <% selected = state.final_day == day_key %>
+                <% candidate = state.selected_days.include?(day_key) %>
+                <% classes = if !candidate
+                               "bg-slate-900/60 text-slate-600 border border-slate-800 cursor-not-allowed"
+                             elsif selected
+                               "bg-cyan-400 text-slate-950 shadow-[0_18px_40px_rgba(34,211,238,0.45)]"
+                             else
+                               "bg-slate-900 text-white border border-slate-700 hover:-translate-y-1 hover:shadow-lg"
+                             end %>
+                <%= vcr_button_to(
+                  "",
+                  type: :select_final_day,
+                  payload: { day: day_key },
+                  button_attrs: {
+                    class: "btn-transition w-full rounded-2xl px-4 py-4 text-left #{classes}",
+                    disabled: !candidate
+                  }
+                ) do %>
+                  <div class="text-xs font-semibold uppercase tracking-widest opacity-60"><%= weekday_label(day_key) %></div>
+                  <div class="text-2xl font-black mt-2"><%= day_label(day_key) %></div>
+                  <div class="text-[10px] font-bold mt-3 opacity-60"><%= day_key %></div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+          <div class="flex-1 space-y-4">
+            <div class="flex items-center gap-2 px-2 text-indigo-300/70 font-bold text-xs uppercase tracking-widest">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>お時間</span>
+            </div>
+            <div id="time-grid-p2" class="grid grid-cols-2 gap-3">
+              <% all_times.each do |time_label| %>
+                <% selected = state.final_time == time_label %>
+                <% candidate = state.selected_times.include?(time_label) %>
+                <% classes = if !candidate
+                               "bg-slate-900/60 text-slate-600 border border-slate-800 cursor-not-allowed"
+                             elsif selected
+                               "bg-cyan-400 text-slate-950 shadow-[0_18px_40px_rgba(34,211,238,0.45)]"
+                             else
+                               "bg-slate-900 text-white border border-slate-700 hover:-translate-y-1 hover:shadow-lg"
+                             end %>
+                <%= vcr_button_to(
+                  "",
+                  type: :select_final_time,
+                  payload: { time: time_label },
+                  button_attrs: {
+                    class: "btn-transition w-full rounded-2xl px-4 py-4 text-left #{classes}",
+                    disabled: !candidate
+                  }
+                ) do %>
+                  <div class="text-[10px] font-bold uppercase tracking-widest opacity-60">Time</div>
+                  <div class="text-2xl font-black mt-2"><%= time_label %></div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+          <div class="flex-1 space-y-4">
+            <div class="flex items-center gap-2 px-2 text-indigo-300/70 font-bold text-xs uppercase tracking-widest">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>スタッフ</span>
+            </div>
+            <div id="staff-grid-p2" class="flex flex-col gap-3">
+              <% Staff.where(id: all_staff_ids).order(:name).each do |staff| %>
+                <% selected = state.final_staff_id == staff.id %>
+                <% candidate = state.selected_staff_ids.include?(staff.id) %>
+                <% classes = if !candidate
+                               "bg-slate-900/60 text-slate-600 border border-slate-800 cursor-not-allowed"
+                             elsif selected
+                               "bg-cyan-400 text-slate-950 shadow-[0_18px_40px_rgba(34,211,238,0.45)]"
+                             else
+                               "bg-slate-900 text-white border border-slate-700 hover:-translate-y-1 hover:shadow-lg"
+                             end %>
+                <%= vcr_button_to(
+                  "",
+                  type: :select_final_staff,
+                  payload: { staff_id: staff.id },
+                  button_attrs: {
+                    class: "btn-transition w-full rounded-2xl px-4 py-4 text-left #{classes}",
+                    disabled: !candidate
+                  }
+                ) do %>
+                  <div class="text-[10px] font-bold uppercase tracking-widest opacity-60">Staff</div>
+                  <div class="text-xl font-black mt-2"><%= staff.name %></div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <% final_ready = final_ready? %>
+        <% confirmed = state.confirmed_at.present? %>
+        <% confirmation_class = if final_ready
+                                  "mt-16 p-10 rounded-[3rem] border-4 border-dashed border-cyan-400 bg-cyan-400/10 shadow-[0_0_50px_rgba(34,211,238,0.1)] opacity-100 text-center flex flex-col items-center gap-6"
+                                else
+                                  "mt-16 p-10 rounded-[3rem] border-4 border-dashed border-indigo-900/50 opacity-50 text-center flex flex-col items-center gap-6"
+                                end %>
+        <% unless final_ready && !confirmed %>
+          <div id="confirmation-area" class="<%= confirmation_class %>">
+            <div id="confirmation-msg" class="<%= final_ready ? "py-4" : "text-indigo-300 font-bold italic py-4" %>">
+              <% if confirmed %>
+                予約を確定しました。
+              <% else %>
+                残りの項目を選択してください...
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        <% if final_ready && !confirmed %>
+          <div id="final-cta-container" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 transition-all duration-500">
+            <div class="w-[min(92vw,760px)] rounded-[2.5rem] border-4 border-dashed border-cyan-400 bg-cyan-400/10 px-8 py-6 shadow-[0_0_50px_rgba(34,211,238,0.12)] text-center backdrop-blur-xl glass">
+              <p class="text-2xl font-medium text-white">
+                <span class="text-cyan-300 font-black underline underline-offset-8"><%= final_time_range_label %></span>に
+                <br>
+                <span class="text-cyan-300 font-black"><%= final_staff_name %></span>がお待ちしております
+              </p>
+              <div class="mt-6 flex justify-center">
+                <%= vcr_button_to(
+                  "",
+                  type: :confirm_booking,
+                  button_attrs: {
+                    class: "group bg-white text-indigo-950 px-16 py-6 rounded-full font-black text-2xl flex items-center gap-4 hover:scale-105 active:scale-95 transition-all shadow-[0_20px_60px_rgba(255,255,255,0.2)]"
+                  }
+                ) do %>
+                  予約を確定する
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-2 group-hover:-translate-y-1 transition-transform"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </main>
+
+  <footer id="app-footer" class="mt-20 py-12 text-center border-t transition-colors duration-1000 text-stone-300 <%= phase_two? ? "border-slate-800" : "border-stone-200" %>">
+    <p class="text-[10px] tracking-[0.5em] font-bold uppercase">View Transition API - Enhanced Experience</p>
+  </footer>
+</div>
