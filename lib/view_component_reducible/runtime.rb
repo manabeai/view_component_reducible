@@ -52,7 +52,7 @@ module ViewComponentReducible
       schema = component_klass.vcr_state_schema
       state = schema.build_data(env['data'])
 
-      reducer_result = component.reduce(state, msg)
+      reducer_result = reduce_component(component, state, msg)
       reduced_state, reducer_effects = case reducer_result
                                        in state_only unless reducer_result.is_a?(Array)
                                          [state_only, []]
@@ -90,7 +90,7 @@ module ViewComponentReducible
         schema = component_klass.vcr_state_schema
         state = schema.build_data(env['data'])
 
-        reducer_result = component.reduce(state, follow_msg)
+        reducer_result = reduce_component(component, state, follow_msg)
         reduced_state, reducer_effects = case reducer_result
                                          in state_only unless reducer_result.is_a?(Array)
                                            [state_only, []]
@@ -129,6 +129,21 @@ module ViewComponentReducible
       else
         raise ArgumentError, "Reducer must return a Hash or #{schema.data_class}"
       end
+    end
+
+    def reduce_component(component, state, msg)
+      component.reduce(state, msg)
+    rescue ::NoMatchingPatternError => e
+      payload = msg.payload
+      payload = payload.to_h if payload.respond_to?(:to_h)
+      message = [
+        "No matching pattern in #{component.class}#reduce",
+        "msg type=#{msg.type.inspect}",
+        "payload=#{payload.inspect}"
+      ].join(' ')
+      error = ViewComponentReducible::NoMatchingPatternError.new(message)
+      error.set_backtrace(e.backtrace)
+      raise error
     end
 
     def build_effects(component, schema, state_hash, msg)

@@ -1,5 +1,10 @@
 module ViewComponentReducible
   VERSION: String
+  class Error < StandardError
+  end
+
+  class NoMatchingPatternError < Error
+  end
   def self.registry: () -> Hash[String, Class]
   def self.register: (Class component_klass) -> void
   def self.config: () -> Configuration

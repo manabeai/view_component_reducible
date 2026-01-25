@@ -95,4 +95,49 @@ RSpec.describe ViewComponentReducible::Runtime do
 
     expect(new_env['data']['count']).to eq(2)
   end
+
+  it 'raises a helpful error when no pattern matches' do
+    no_match_component_class = Class.new(ViewComponent::Base) do
+      include ViewComponentReducible::Component
+
+      state do
+        field :count, default: 0
+      end
+
+      def call
+        content_tag(:div, vcr_state['count'])
+      end
+
+      def reduce(state, msg)
+        case msg
+        in { type: :inc }
+          state.with(count: state.count + 1)
+        end
+      end
+    end
+
+    stub_const('NoMatchComponent', no_match_component_class)
+    ViewComponentReducible.register(NoMatchComponent)
+
+    msg = ViewComponentReducible::Msg.build(type: 'Unknown', payload: { source: 'spec' })
+    env = {
+      'v' => 1,
+      'root' => 'NoMatchComponent',
+      'path' => 'root/1',
+      'data' => { 'count' => 0 },
+      'children' => {}
+    }
+
+    expect do
+      described_class.new.call(
+        envelope: env,
+        msg: msg,
+        target_path: 'root/1',
+        controller:
+      )
+    end.to raise_error(
+      ViewComponentReducible::NoMatchingPatternError,
+      /No matching pattern in NoMatchComponent#reduce/
+    )
+  end
 end

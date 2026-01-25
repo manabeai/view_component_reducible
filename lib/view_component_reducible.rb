@@ -23,6 +23,7 @@ require_relative 'view_component_reducible/railtie'
 
 module ViewComponentReducible
   class Error < StandardError; end
+  class NoMatchingPatternError < Error; end
 
   # @return [Hash{String=>Class}]
   def self.registry
