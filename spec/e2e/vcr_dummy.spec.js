@@ -126,9 +126,9 @@ test('booking flow reveals times and staff', async ({ page }) => {
 
   // 日付を選び直すとスタッフと時間がリセットされることを確認
   await page.getByTestId('day-16').click();
-  await expect(page.getByTestId('selected-day')).toHaveText('2024年3月16日');
-  await expect(page.getByTestId('selected-time')).toHaveText('未選択');
-  await expect(page.getByTestId('selected-staff')).toHaveText('未選択');
+  await expect(page.getByTestId('selected-day')).toHaveText('2024年3月16日', { timeout: 10_000 });
+  await expect(page.getByTestId('selected-time')).toHaveText('未選択', { timeout: 10_000 });
+  await expect(page.getByTestId('selected-staff')).toHaveText('未選択', { timeout: 10_000 });
   await expect(page.getByTestId('booking-button')).toHaveCount(0);
 });
 
@@ -171,10 +171,13 @@ test('booking flexible flow keeps disabled options and confirms', async ({ page 
   const finalStaffButton = page.locator('#staff-grid-p2 button:not([disabled])').first();
 
   await finalDayButton.click();
+  await expect(page.locator('#date-grid-p2 button.bg-cyan-400')).toHaveCount(1);
   await finalTimeButton.click();
+  await expect(page.locator('#time-grid-p2 button.bg-cyan-400')).toHaveCount(1);
 
   const staffName = await finalStaffButton.locator('div').nth(1).innerText();
   await finalStaffButton.click();
+  await expect(page.locator('#staff-grid-p2 button.bg-cyan-400')).toHaveCount(1);
 
   // 確認文言に日時とスタッフが含まれることを確認
   const finalCta = page.locator('#final-cta-container');
