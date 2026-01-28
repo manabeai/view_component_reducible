@@ -78,8 +78,8 @@ class BookingFlexibleComponent < ViewComponent::Base
     in { type: :select_final_time, payload: payload }
       state.with(final_time: payload.time.to_s)
 
-    # in { type: :select_final_staff, payload: payload }
-    #   state.with(final_staff_id: payload.staff_id.to_i)
+    in { type: :select_final_staff, payload: payload }
+      state.with(final_staff_id: payload.staff_id.to_i)
 
     in { type: :confirm_booking }
       return state unless final_ready?(state)
