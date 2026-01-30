@@ -32,11 +32,9 @@ class BookingComponent < ViewComponent::Base
     in { type: :select_day, payload: payload }
       return state if state.selected_day == payload.day.to_i
       
-      calendar_effect = build_calendar_effect
       effect = build_times_effect(payload.day.to_i)
       [
         state.with(selected_day: payload.day.to_i, selected_time: nil, selected_staff: nil, available_times: BookingMockData.base_times, available_staff: []),
-        calendar_effect,
         effect
       ]
 
