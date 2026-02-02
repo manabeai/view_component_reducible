@@ -100,7 +100,7 @@ Post a message to `/vcr/dispatch` so it reaches the component reducer.
 <%= vcr_button_to("Save", type: :clicked_save) %>
 ```
 The helper defaults the state token to the current component, so you usually do not need to pass it.
-`vcr_button_to` is a thin wrapper over `form_tag` and submits `vcr_msg_type`, `vcr_msg_payload`, and `vcr_target_path` as hidden fields. Use `payload:` to pass structured values for reducers (e.g., `payload: { day: day }`).
+`vcr_button_to` is a thin wrapper over `form_tag` and submits `vcr_msg_type`, `vcr_msg_payload`, and `vcr_target_path` as hidden fields. Use `payload:` to pass structured values for reducers (e.g., `payload: { day: day }`). Button attributes are forwarded via `button_attrs:` (e.g., `button_attrs: { class: "btn", data: { turbo: false } }`).
 
 Example with payload:
 
